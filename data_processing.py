@@ -75,11 +75,11 @@ PRODUCTION DATA:
     "Wind Prod", (139595.0)
 WEATHER DATA (only Norway):
     "T Nor", (4.4, celsius)
-    "Temp Hamar", (temp in celsius, float)
-    "Temp Krsand", (temp in celsius, float)
-    "Temp Namsos", (temp in celsius, float)
-    "Temp Troms", (temp in celsius, float)
-    "Temp Bergen", (temp in celsius, float)
+    "Temp Hamar", (temp in celsius, float) Oslo
+    "Temp Krsand", (temp in celsius, float) Kr.Sand
+    "Temp Namsos", (temp in celsius, float) Tr.heim
+    "Temp Troms", (temp in celsius, float) Tromsø
+    "Temp Bergen", (temp in celsius, float) Bergen
     "Temp Norway", (temp in celsius, float)
     "Prec Norway", (101.2)
     "Prec Norway 7", (981.4)
@@ -90,24 +90,9 @@ Marius & Jake Estimate:
 
 # these are the vars which can be changed
 selected_colums = [
-    "Season",
-    "Weekend",
-    "Holiday",
-    "System Price",
     "Total Vol",
-    "Supply",
-    "Demand",
-    "Total Hydro",
-    "Total Hydro Dev",
-    "Wind Prod",
-    "T Nor",
-    "Prec Norway",
-    "Prec Norway 7",
-    "Snow Norway",
-    "Month",
-    "Weekday",
-    "Hour",
-    "Date"
+    "T Hamar"
+    "Hour"
 ] 
 
 output_variable = ( 
@@ -115,15 +100,15 @@ output_variable = (
 )
 if output_variable not in selected_colums:
     selected_colums.append(output_variable)
+if "Date" in selected_colums:
+    print("REMOVE DATE FROM SELECTED COLUMS/ OUTPUT VARIABLE, NOT FLOAT!")
+
 
 # Example format: date = 2014-01-01, hour = 3 (03:00-04:00)
 
 #these need to be defined
-input_length = 100
-training_length = 10 * 24 # how many days to use in each training example
-predict_change_delay = 7 # wtf to do with this? 
+training_length = 10  # how many days to use in each training example
 prediction_horizon = 10 # number of days looking forward
-
 input_length = len(selected_colums)
 
 # converting month, weekday and week to one-hot encoding
@@ -143,13 +128,14 @@ if "Week" in selected_colums:
     input_length += 52
     selected_colums.remove("Week")  # want as seperate df
 hour_one_hot_encoding = False
+
 if "Hour" in selected_colums:
     week_one_hot_encoding = True
     input_length += 23
     selected_colums.remove("Hour")  # want as seperate df
 
 # retrieves data
-hourly_data = pd.read_csv("external_data/all_data_hourly.csv")
+hourly_data = pd.read_csv("data_erling/hourly_data_areas.csv")
 
 date_hour_list = hourly_data["Date"].values.tolist() # e.g., 2020-06-05-7 -> 07:00-08:00 on 5 June 2020
 for index, element in enumerate(date_hour_list):
@@ -157,7 +143,7 @@ for index, element in enumerate(date_hour_list):
     date_hour_list[index] = element + "-" + str(hour)
 
 data_used = pd.DataFrame(hourly_data, columns=selected_colums)
-#data_used = data_used.astype(float) Need to be added later, and then remove date from selected columns
+data_used = data_used.astype(float) #remove date from selected columns
 
 # converting month, weekday and week to one-hot encoding part 2
 if month_one_hot_encoding:
@@ -186,11 +172,11 @@ test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 y
 
 # split into x (input vars) and y (target system price) data
 training_data_x = training_data[0:-prediction_horizon * 24]
-training_data_y = training_data[training_length :]
+training_data_y = training_data[training_length * 24:]
 training_data_y = training_data_y[output_variable] # will get 2181 different training cases
 
 test_data_x = test_data[0:-prediction_horizon * 24]
-test_data_y = test_data[training_length :]
+test_data_y = test_data[training_length * 24 :]
 test_data_y = test_data_y[output_variable] # will get 356 different training cases
 
 
@@ -202,22 +188,25 @@ test_data_y = test_data_y.to_numpy()
 
 
 
-training_x = [] # 2181 lists of input list of lenght training_lenght(10) * 24
-training_y = [] # 2181 lists of output list of lenght prediction_horizon(10) * 24
+training_x = [] # 2181 - (training_lenght + prediction_horizon - 1) lists of input list of lenght training_lenght(10) * 24
+training_y = [] # 2181 - (training_lenght + prediction_horizon - 1) lists of output list of lenght prediction_horizon(10) * 24
 
-test_x = [] # 356 lists of input list of lenght training_lenght(10) * 24
-test_y = [] # 356 lists of output list of lenght prediction_horizon(10) * 24
+test_x = [] # 356 - (training_lenght + prediction_horizon - 1) lists of input list of lenght training_lenght(10) * 24
+test_y = [] # 356 - (training_lenght + prediction_horizon - 1) lists of output list of lenght prediction_horizon(10) * 24
 
 ind = 0
-while ind + training_length * 24  <= len(training_data_x):
+while ind + (training_length * 24)   <= len(training_data_x):
     training_x.append(training_data_x[ind:ind+training_length*24])
-    training_y.append(training_data_y[ind+training_length*24:ind+training_length*24+prediction_horizon*24])
+    training_y.append(training_data_y[ind:ind+prediction_horizon*24])
     ind += 24 
 
 ind = 0
-while ind + training_length * 24  <= len(test_data_x):
+while ind + ( training_length * 24 ) <= len(test_data_x):
     test_x.append(test_data_x[ind:ind+training_length*24])
-    test_y.append(test_data_y[ind+training_length*24:ind+training_length*24+prediction_horizon*24])
+    test_y.append(test_data_y[ind:ind+prediction_horizon*24])
     ind += 24 
 
-print(test_y)
+training_x = np.array(training_x)
+training_y = np.array(training_y)
+test_x = np.array(test_x)
+test_y = np.array(test_y)
