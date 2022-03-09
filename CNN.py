@@ -51,7 +51,7 @@ class CNN:
         self.model.add(
             InputLayer(input_shape=(training_length * 24, input_length))
         )  # need to add input shape here
-
+        
         # adding the TCN layer here
         self.model.add(
             TCN(
@@ -122,3 +122,4 @@ class CNN:
 
 # history = self.model.fit(x=features, y=targets, batch_size = how many to fit at a time, epochs = 5, validation_split = 0.1,shuffle = True) # how to train
 # self.model( [input] ) -> output
+

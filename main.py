@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 import datetime
-import json
+import json 
 import pickle
 
 from keras.layers import (
@@ -64,6 +64,10 @@ tf.random.set_seed(parameters["tenserflow_random_seed"])
 # creating TCN/ CNN model based on parameters
 model = CNN().initialize(parameters)
 
+print(training_x.shape)
+
+print(training_y.shape)
+
 history = model.fit(
     features=training_x,
     targets=training_y,
@@ -73,4 +77,5 @@ history = model.fit(
     shuffle=False,
     verbose=parameters["verbose"],
 )
+
 

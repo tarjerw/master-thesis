@@ -90,13 +90,12 @@ Marius & Jake Estimate:
 
 # these are the vars which can be changed
 selected_colums = [
-    "Total Vol",
-    "T Hamar"
-    "Hour"
+    "EEX",
+  "System Price"
 ] 
 
 output_variable = ( 
-    "Oslo"  # what are we forecasting, in this thesis "System Price"
+    "SE1"  # what are we forecasting, in this thesis "System Price"
 )
 if output_variable not in selected_colums:
     selected_colums.append(output_variable)
@@ -188,6 +187,7 @@ test_data_y = test_data_y.to_numpy()
 
 
 
+
 training_x = [] # 2181 - (training_lenght + prediction_horizon - 1) lists of input list of lenght training_lenght(10) * 24
 training_y = [] # 2181 - (training_lenght + prediction_horizon - 1) lists of output list of lenght prediction_horizon(10) * 24
 
@@ -210,3 +210,13 @@ training_x = np.array(training_x)
 training_y = np.array(training_y)
 test_x = np.array(test_x)
 test_y = np.array(test_y)
+
+
+def describe_data(data):
+    print(data.mad())
+    print(data.median())
+    print(data.describe())
+
+wrong_data = hourly_data[hourly_data['Oslo'].isnull()]
+
+print(wrong_data)

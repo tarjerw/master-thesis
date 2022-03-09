@@ -13,10 +13,10 @@ parameters = {
     # Path for continuing training (e.g "/Users/tarje/Desktop/Fordypningoppgvae/git/models/6/11.01.2021/13.39.29, "" for no pre-load)
     "starting_cnn": "",
     # params for CNN:
-    "epochs": 5,
-    "batch_size": 88,  # batch size
+    "epochs": 100,
+    "batch_size": 256,  # batch size
     "validation_split": 0.1,
-    "learning_rate": 0.00000000000000000000000000000002,  # Learning rate the neural net
+    "learning_rate": 0.00000002,  # Learning rate the neural net
     "hidden_layers": [64, 32,32],  # Hidden layers for CNN
     "activation_functions": [
         "relu",
@@ -25,7 +25,7 @@ parameters = {
     ],  # activation functions for hidden layers, (can't be shorter than "hidden_layers")
     # linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
     "last_layer_activation": "linear",
-    "optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
+    "optimizer": "SGD",  # Adam, SGD, Adagrad, RMSprop
     "loss": "mean_squared_error",  # loss function in CNN, "mean_absolute_error", "mean_squared_error"
     "verbose": 1,  # 0,1 or 2, affects data feedback while training (no impact on result)
     "metrics": [
