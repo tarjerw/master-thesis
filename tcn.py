@@ -419,7 +419,7 @@ def compiled_tcn(
     kernel_initializer="he_normal",  # type: str,
     activation="relu",  # type:str,
     opt="adam",
-    lr=0.002,
+    lr=0.0002,
     use_batch_norm=False,
     use_layer_norm=False,
     use_weight_norm=False,

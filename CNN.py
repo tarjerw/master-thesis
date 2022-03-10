@@ -32,9 +32,6 @@ from tcn import TCN
 
 from data_processing import input_length, training_length
 
-
-from data_processing import training_data_x, training_data_y, test_data_x, test_data_y
-
 # "learning_rate": 0.001,  # Learning rate the neural net
 # activation functions: linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
 # "anet_optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
@@ -52,9 +49,9 @@ class CNN:
         self.model = Sequential()
 
         self.model.add(
-            InputLayer(input_shape=(training_length + 1, input_length))
+            InputLayer(input_shape=(training_length * 24, input_length))
         )  # need to add input shape here
-
+        
         # adding the TCN layer here
         self.model.add(
             TCN(
@@ -67,6 +64,9 @@ class CNN:
                 activation=parameters["TCN_activiation"],
             )
         )
+        
+        if len(parameters["hidden_layers"]) < len(parameters["activation_functions"]):
+            print("NEED TO HAVE ACTIVATION FUNCTIONS EQUAL TO NUMBER OF HIDDEN LAYERS DUMBASS!")
 
         # adding dense layers
         for index, layer in enumerate(parameters["hidden_layers"]):
@@ -74,8 +74,8 @@ class CNN:
                 Dense(layer, activation=parameters["activation_functions"][index])
             )
 
-        # Will need to map to a single number, last layer
-        self.model.add(Dense(1, activation=parameters["last_layer_activation"]))
+        # Will need to map to 24 * prediction_horizon floats in last layer
+        self.model.add(Dense(24 * parameters["prediction_horizon"], activation=parameters["last_layer_activation"]))
 
         selected_optimizer = getattr(optimizers, parameters["optimizer"])(
             learning_rate=parameters["learning_rate"]
@@ -122,3 +122,4 @@ class CNN:
 
 # history = self.model.fit(x=features, y=targets, batch_size = how many to fit at a time, epochs = 5, validation_split = 0.1,shuffle = True) # how to train
 # self.model( [input] ) -> output
+
