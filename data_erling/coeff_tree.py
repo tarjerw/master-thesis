@@ -2,15 +2,15 @@ import numpy as np
 
 class Node:
 
-    def __init__(self, value=None, parent=None, children=None):
-        if parent==None:
+    def __init__(self, value=None, root=False, parent=None):
+        self.parent = parent
+        if root:
             self.level=0
         else:
+            self.parent.set_child(self)
             self.level = parent.level + 1
         self.value = value
-        self.parent = parent
         self.children = []
-        self.children.append(children)
         self.coeff_value = 1.0  #Is the average for the area price node, and the coefficients for the leafs
 
     def set_coeff_value(self, value):
@@ -40,6 +40,9 @@ class Node:
             return self.children
 
     def print_subtree(self):
-        for child in self.children:
-            child.print_subtree()
+        if len(self.children)>0:
+            for child in self.children:
+                child.print_subtree()
         print(self.value)
+        if len(self.children) == 0:
+            print(self.coeff_value)
