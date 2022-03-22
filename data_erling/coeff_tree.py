@@ -8,6 +8,7 @@ class Node:
             self.level=0
         else:
             self.parent.set_child(self)
+            self.parent = parent
             self.level = parent.level + 1
         self.value = value
         self.children = []
@@ -16,6 +17,8 @@ class Node:
     def set_coeff_value(self, value):
         self.coeff_value = value
     
+    def get_value(self):
+        return self.value
 
     def set_parent(self, parent):
         if self.parent != parent:
@@ -46,3 +49,10 @@ class Node:
         print(self.value)
         if len(self.children) == 0:
             print(self.coeff_value)
+
+    def get_coefficient(self, search_list):
+        if self.level >= 3:
+            return self.coeff_value
+        else:
+            x = [x for x in self.children if x.value in search_list][0]
+            return x.get_coefficient(search_list)
