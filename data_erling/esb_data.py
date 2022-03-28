@@ -5,6 +5,7 @@ from cgi import print_exception
 import numpy as np
 import pandas as pd
 from coeff_tree import Node
+import matplotlib.pyplot as plt
 
 
 #data  = pd.read_csv('data_erling/hourly_data_areas.csv')
@@ -75,11 +76,11 @@ def adjust_price_to_deviation(data, price_col, coeff_cols, tree_root):
     for i in range(len(price_new)):
         expected_price_this_point_in_time = avg_price
         for j in range(len(coeff_cols)):
-            expected_price_this_point_in_time * get_coeff_from_tree(tree_root, price_col, coeff_cols[j], data[coeff_cols[j]].iloc[i])
+            expected_price_this_point_in_time = expected_price_this_point_in_time * get_coeff_from_tree(tree_root, price_col, coeff_cols[j], data[coeff_cols[j]].iloc[i])
         price_new[i] -= expected_price_this_point_in_time
     #Now, this function returns a numpy array, should be made into a pandas series or somethingg
-    print(data[price_col])
-    print(price_new)
+    #print(data[price_col])
+    #print(price_new)
     return price_new, avg_price
 
 
@@ -92,8 +93,24 @@ def transform_prices(data, price_cols, coeff_cols, tree_root):
         data[price] = new_price
     return data, price_avg
 
+def plot_data(data, cols):
+    plt.style.use('ggplot')
+    for col in cols:
+        plt.plot(data[col])
+   #plt.show()
 
 
+
+#returns data on the shape [n_instances, n_timesteps_back, n_features], [n_instances, target_vector]
+def make_data_to_sheets(data, input_features, output_variables, input_length, output_length):
+    X_data_sheets = np.zeros((data.shape[0] - output_length, input_length, input_features))
+    y_data_sheets = np.zeros((data.shape[0], output_length))
+    for i in range(len(data) - output_length):
+        sheet = data[input_features].iloc[i : i + input_length]
+        target = data[output_variables].iloc[i + input_length : i + input_length + output_length]
+        X_data_sheets[i, :, :] = sheet
+        y_data_sheets[i, :, :] = target
+    return X_data_sheets, y_data_sheets
 
 
 
@@ -148,5 +165,12 @@ if __name__=='__main__':
     coeff_columns_as_coefficients = ['Hour', 'Weekday', 'Holiday']
     root_node = make_coeff_tree(data, price_columns_as_coefficients, coeff_columns_as_coefficients)
     #root_node.print_subtree()
+    #plot_data(data[:200], ['SE2'])
     data, average_area_prices = transform_prices(data, price_columns_as_coefficients, coeff_columns_as_coefficients, root_node)
+    print(data.shape)
+    X_data_sheet, y_data_sheet = make_data_to_sheets(data, len(data.columns), 1, 7, 14) #MODIFICATION IS REQUIRED, IS INCONSISTENT...
+    #plot_data(data[:200], ['SE2'])
+    #plt.show()
+    #print(data[['System Price', 'SE1', 'SE2']].describe())
+
 
