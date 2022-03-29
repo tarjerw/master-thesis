@@ -1,10 +1,18 @@
+from cgi import test
 import csv
+from re import A
 from numpy.lib.function_base import average
 import pandas as pd
 import datetime
 import numpy as np
 import seaborn as sn
 import matplotlib.pyplot as plt
+
+#Imports for preprocessing
+#from data_erling.data_transforms.min_max_transform import Min_max_scaler
+#from data_erling.data_transforms.standardize import Standardizer
+from data_erling.data_transforms.column_types import time_series_columns
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 """
 The test case study is designed by using data from 1 Jan 2014 to 31 Dec 2019 as training data and 1 Jan 2020 to
@@ -90,8 +98,9 @@ Marius & Jake Estimate:
 
 # these are the vars which can be changed
 selected_colums = [
-    "EEX",
-  "System Price"
+    "System Price",
+    "SE3",
+    "SE2"
 ] 
 
 output_variable = ( 
@@ -102,6 +111,12 @@ if output_variable not in selected_colums:
 if "Date" in selected_colums:
     print("REMOVE DATE FROM SELECTED COLUMS/ OUTPUT VARIABLE, NOT FLOAT!")
 
+#Data processing - normalization and standardization
+standardize_data = True
+min_max_normalize_data = True
+
+if standardize_data and min_max_normalize_data:
+    min_max_normalize_data = False
 
 # Example format: date = 2014-01-01, hour = 3 (03:00-04:00)
 
@@ -167,6 +182,39 @@ training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 
 test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 year , need to talk about COVID
 
 # NEED TO DO SOME DATA PREPROCESSING HERE !!! 
+
+active_price_colums = [x for x in time_series_columns if x in training_data.columns]
+
+
+def standardize_data_func(training_data, test_data, active_cols):
+    pd.set_option("mode.chained_assignment", None) 
+    training_length = len(training_data)
+    test_length = len(test_data)
+    for col in active_cols:
+        scaler = StandardScaler()
+        scaler.fit(training_data[col].to_numpy().reshape((-1, 1)))
+        training_data[col] = scaler.transform(training_data[col].to_numpy().reshape((-1, 1))).reshape((training_length,))
+        test_data[col] = scaler.transform(test_data[col].to_numpy().reshape((-1, 1))).reshape((test_length,))
+    return training_data, test_data
+
+
+def min_max_normalize_data_func(training_data, test_data, active_cols):
+    pd.set_option("mode.chained_assignment", None)
+    training_length = len(training_data)
+    test_length = len(test_data)
+    for col in active_cols:
+        scaler = MinMaxScaler()
+        scaler.fit(training_data[col].to_numpy().reshape((-1, 1)))
+        training_data[col] = scaler.transform(training_data[col].to_numpy().reshape((-1, 1))).reshape((training_length,))
+        test_data[col] = scaler.transform(test_data[col].to_numpy().reshape((-1, 1))).reshape((test_length,))
+    return training_data, test_data
+
+if standardize_data:
+    training_data, test_data = standardize_data_func(training_data, test_data, active_price_colums)
+elif min_max_normalize_data:
+    training_data, test_data = min_max_normalize_data_func(training_data, test_data, active_price_colums)
+else:
+    print('No standardization/normalization was made to the data')
 
 
 # split into x (input vars) and y (target system price) data
