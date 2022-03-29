@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from coeff_tree import Node
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 
 #data  = pd.read_csv('data_erling/hourly_data_areas.csv')
@@ -103,13 +104,16 @@ def plot_data(data, cols):
 
 #returns data on the shape [n_instances, n_timesteps_back, n_features], [n_instances, target_vector]
 def make_data_to_sheets(data, input_features, output_variables, input_length, output_length):
-    X_data_sheets = np.zeros((data.shape[0] - output_length, input_length, input_features))
-    y_data_sheets = np.zeros((data.shape[0], output_length))
-    for i in range(len(data) - output_length):
+    X_data_sheets = np.zeros((data.shape[0] - output_length, input_length, len(input_features)))
+    y_data_sheets = np.zeros((data.shape[0] - output_length, output_length))
+    print('making data sheets...')
+    for i in tqdm(range(len(data) - output_length - input_length)):
         sheet = data[input_features].iloc[i : i + input_length]
         target = data[output_variables].iloc[i + input_length : i + input_length + output_length]
+        #print(sheet)
+        #print(target)
         X_data_sheets[i, :, :] = sheet
-        y_data_sheets[i, :, :] = target
+        y_data_sheets[i, :] = target.to_numpy().reshape((output_length, ))
     return X_data_sheets, y_data_sheets
 
 
@@ -151,24 +155,15 @@ def get_data(path, date_split, hr_split, input_length, pred_length, columns, tar
 '''
 
 if __name__=='__main__':
-    data = read_data(['Unnamed: 0', 'Date', 'Hour', 'System Price', 'Total Vol', 'NO Buy Vol',
-       'NO Sell Vol', 'SE Buy Vol', 'SE Sell Vol', 'DK Buy Vol', 'DK Sell Vol',
-       'FI Buy Vol', 'FI Sell Vol', 'Nordic Buy Vol', 'Nordic Sell Vol',
-       'Baltic Buy Vol', 'Baltic Sell Vol', 'T Hamar', 'T Krsand', 'T Namsos',
-       'T Troms', 'T Bergen', 'T Nor', 'NO Hydro', 'SE Hydro', 'FI Hydro',
-       'Total Hydro', 'NO Hydro Dev', 'SE Hydro Dev', 'FI Hydro Dev',
-       'Total Hydro Dev', 'Week', 'Month', 'Season', 'Weekday', 'Weekend',
-       'Wind DK', 'Curve Demand', 'Holiday', 'SE1', 'SE2', 'SE3', 'SE4', 'FI',
-       'DK1', 'DK2', 'Oslo', 'Kr.sand', 'Bergen', 'Molde', 'Tr.heim',
-       'Tromsø'])
+    data = read_data(['Hour', 'System Price', 'SE1', 'SE2', 'SE3', 'SE4']) #'Unnamed: 0' and 'Date' has been removed, among others
     price_columns_as_coefficients = ['System Price', 'SE1', 'SE2']
-    coeff_columns_as_coefficients = ['Hour', 'Weekday', 'Holiday']
+    coeff_columns_as_coefficients = ['Hour']
     root_node = make_coeff_tree(data, price_columns_as_coefficients, coeff_columns_as_coefficients)
     #root_node.print_subtree()
     #plot_data(data[:200], ['SE2'])
     data, average_area_prices = transform_prices(data, price_columns_as_coefficients, coeff_columns_as_coefficients, root_node)
-    print(data.shape)
-    X_data_sheet, y_data_sheet = make_data_to_sheets(data, len(data.columns), 1, 7, 14) #MODIFICATION IS REQUIRED, IS INCONSISTENT...
+    X_data_sheet, y_data_sheet = make_data_to_sheets(data[:15000], data.columns, ['SE2'], 168, 24) #MODIFICATION IS REQUIRED, IS INCONSISTENT...
+    print(y_data_sheet[0].shape)
     #plot_data(data[:200], ['SE2'])
     #plt.show()
     #print(data[['System Price', 'SE1', 'SE2']].describe())
