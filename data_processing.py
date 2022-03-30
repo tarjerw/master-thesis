@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 #from data_erling.data_transforms.standardize import Standardizer
 from data_erling.data_transforms.column_types import time_series_columns
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.decomposition import PCA
 
 """
 The test case study is designed by using data from 1 Jan 2014 to 31 Dec 2019 as training data and 1 Jan 2020 to
@@ -98,9 +99,17 @@ Marius & Jake Estimate:
 
 # these are the vars which can be changed
 selected_colums = [
-    "System Price",
+    "SE1",
+    "SE2",
     "SE3",
-    "SE2"
+    "DK1",
+    "DK2",
+    "Oslo",
+    "Kr.sand",
+    "Bergen",
+    "Tr.heim",
+    "Molde",
+    "Tromsø"
 ] 
 
 output_variable = ( 
@@ -111,9 +120,9 @@ if output_variable not in selected_colums:
 if "Date" in selected_colums:
     print("REMOVE DATE FROM SELECTED COLUMS/ OUTPUT VARIABLE, NOT FLOAT!")
 
-#Data processing - normalization and standardization
+#Data processing - normalization and standardization - Standard is standardization
 standardize_data = True
-min_max_normalize_data = True
+min_max_normalize_data = False
 
 if standardize_data and min_max_normalize_data:
     min_max_normalize_data = False
@@ -180,6 +189,22 @@ if hour_one_hot_encoding:
 training_test_split = date_hour_list.index('2020-01-01-0')
 training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
 test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 year , need to talk about COVID
+
+
+def find_pca_explained_variance(pca_obj):
+    plt.plot(np.cumsum(pca_obj.explained_variance_ratio_))
+    plt.show()
+
+
+def principal_component_analysis(data, explained_variance=0.99):
+    pca = PCA(n_components=explained_variance)
+    pca = pca.fit(data)
+    #find_pca_explained_variance(pca)
+    return pca.transform(data), pca
+
+    
+
+training_data_trans, pca_obj = principal_component_analysis(training_data)
 
 # NEED TO DO SOME DATA PREPROCESSING HERE !!! 
 
