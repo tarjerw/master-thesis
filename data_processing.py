@@ -1,10 +1,14 @@
+from cProfile import label
 from cgi import test
 import csv
 from re import A
+import wave
+from bleach import clean
 from numpy.lib.function_base import average
 import pandas as pd
 import datetime
 import numpy as np
+from pyparsing import col
 import seaborn as sn
 import matplotlib.pyplot as plt
 
@@ -12,8 +16,10 @@ import matplotlib.pyplot as plt
 #from data_erling.data_transforms.min_max_transform import Min_max_scaler
 #from data_erling.data_transforms.standardize import Standardizer
 from data_erling.data_transforms.column_types import time_series_columns
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, normalize
 from sklearn.decomposition import PCA
+import pywt
+from statsmodels.robust import mad
 
 """
 The test case study is designed by using data from 1 Jan 2014 to 31 Dec 2019 as training data and 1 Jan 2020 to
@@ -100,16 +106,17 @@ Marius & Jake Estimate:
 # these are the vars which can be changed
 selected_colums = [
     "SE1",
-    "SE2",
-    "SE3",
-    "DK1",
-    "DK2",
-    "Oslo",
+    #"SE2",
+    #"SE3",
+    #"SE4"
+    #"DK1",
+    #"DK2",
+    #"FI",
+    #"Oslo",
     "Kr.sand",
-    "Bergen",
-    "Tr.heim",
-    "Molde",
     "Tromsø"
+    #"Bergen",
+    #"Molde"
 ] 
 
 output_variable = ( 
@@ -220,7 +227,7 @@ def standardize_data_func(training_data, test_data, active_cols):
         scaler.fit(training_data[col].to_numpy().reshape((-1, 1)))
         training_data[col] = scaler.transform(training_data[col].to_numpy().reshape((-1, 1))).reshape((training_length,))
         test_data[col] = scaler.transform(test_data[col].to_numpy().reshape((-1, 1))).reshape((test_length,))
-    return training_data, test_data
+    return pd.DataFrame(training_data, columns=training_data.columns), pd.DataFrame(test_data, columns=test_data.columns)
 
 
 def min_max_normalize_data_func(training_data, test_data, active_cols):
@@ -232,7 +239,7 @@ def min_max_normalize_data_func(training_data, test_data, active_cols):
         scaler.fit(training_data[col].to_numpy().reshape((-1, 1)))
         training_data[col] = scaler.transform(training_data[col].to_numpy().reshape((-1, 1))).reshape((training_length,))
         test_data[col] = scaler.transform(test_data[col].to_numpy().reshape((-1, 1))).reshape((test_length,))
-    return training_data, test_data
+    return pd.DataFrame(training_data, columns=training_data.columns), pd.DataFrame(test_data, columns=test_data.columns)
 
 if standardize_data:
     training_data, test_data = standardize_data_func(training_data, test_data, active_price_colums)
@@ -240,6 +247,46 @@ elif min_max_normalize_data:
     training_data, test_data = min_max_normalize_data_func(training_data, test_data, active_price_colums)
 else:
     print('No standardization/normalization was made to the data')
+
+
+def unit_vector_normalization(data):
+    return pd.DataFrame(normalize(data), columns=data.columns)
+
+
+
+#Can only be used for training data - not sure if it is scientifically valid to use it for test data
+def wavelet_transform_data(data, mother_wavelet='coif1', n_levels=30, plot_transform=False):
+    data_numpy = data.to_numpy()
+    cols = data.columns
+    steps = len(data)
+    fig, axs = plt.subplots(len(cols))
+    for i in range(len(cols)):
+        time_series = data[cols[i]].to_numpy().reshape((steps,))
+        coeffs = pywt.wavedec(time_series, mother_wavelet, level=n_levels)
+        sigma = mad(coeffs[-1])/0.5
+        thresh = sigma * np.sqrt(2 * np.log(steps))
+        coeffs[1:] = (pywt.threshold(i, value=thresh, mode='hard') for i in coeffs[1:])
+        clean = pywt.waverec(coeffs[1:], mother_wavelet)
+        if plot_transform:
+            axs[i].plot(data_numpy[:, i], c='b')
+            axs[i].plot(clean, c='r')
+            axs[i].set_title(cols[i])
+        data_numpy[:, i] = clean
+    if plot_transform:
+        plt.show()
+    return pd.DataFrame(data_numpy, columns=cols)
+
+
+
+def asinh_transform_dataset(training_data, test_data):
+    cols = training_data.columns
+    training_data = training_data.to_numpy()
+    test_data = test_data.to_numpy()
+    for row in range(len(training_data)):
+        training_data[row, :] = np.arcsinh(training_data[row, :])   #Numpy is a lot faster here than tensorflow
+    for row in range(len(test_data)):
+        test_data[row, :] = np.arcsinh(test_data[row, :])
+    return pd.DataFrame(training_data, columns=cols), pd.DataFrame(test_data, columns=cols)
 
 
 # split into x (input vars) and y (target system price) data
