@@ -255,6 +255,7 @@ def unit_vector_normalization(data):
 
 
 #Can only be used for training data - not sure if it is scientifically valid to use it for test data
+#Unsure about functionality of this function, should consult a professor on NTNU
 def wavelet_transform_data(data, mother_wavelet='coif1', n_levels=30, plot_transform=False):
     data_numpy = data.to_numpy()
     cols = data.columns
