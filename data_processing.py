@@ -3,7 +3,7 @@ from cgi import test
 import csv
 from re import A
 import wave
-from bleach import clean
+#from bleach import clean
 from numpy.lib.function_base import average
 import pandas as pd
 import datetime
@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from data_erling.data_transforms.column_types import time_series_columns
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, normalize
 from sklearn.decomposition import PCA
-import pywt
+#import pywt
 from statsmodels.robust import mad
 
 """
@@ -106,15 +106,16 @@ Marius & Jake Estimate:
 # these are the vars which can be changed
 selected_colums = [
     "SE1",
-    #"SE2",
-    #"SE3",
+    "SE2",
+    "SE3",
+    "Weekday",
     #"SE4"
     #"DK1",
     #"DK2",
     #"FI",
     #"Oslo",
-    "Kr.sand",
-    "Tromsø"
+    #"Kr.sand",
+    #"Tromsø"
     #"Bergen",
     #"Molde"
 ] 
@@ -198,10 +199,11 @@ training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 
 test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 year , need to talk about COVID
 
 
+# NEED TO DO SOME DATA PREPROCESSING HERE !!! 
+
 def find_pca_explained_variance(pca_obj):
     plt.plot(np.cumsum(pca_obj.explained_variance_ratio_))
     plt.show()
-
 
 def principal_component_analysis(data, explained_variance=0.99):
     pca = PCA(n_components=explained_variance)
@@ -209,14 +211,9 @@ def principal_component_analysis(data, explained_variance=0.99):
     #find_pca_explained_variance(pca)
     return pca.transform(data), pca
 
-    
-
 training_data_trans, pca_obj = principal_component_analysis(training_data)
 
-# NEED TO DO SOME DATA PREPROCESSING HERE !!! 
-
 active_price_colums = [x for x in time_series_columns if x in training_data.columns]
-
 
 def standardize_data_func(training_data, test_data, active_cols):
     pd.set_option("mode.chained_assignment", None) 
