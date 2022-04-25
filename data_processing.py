@@ -57,9 +57,9 @@ Regional Prices: (THESE ARE NEW!)
     "Oslo", (EUR / MWh)
     "Kr.sand", (EUR / MWh)
     "Bergen", (EUR / MWh)
-    "Molde", (EUR / MWh)
     "Tr.heim", (EUR / MWh)
     "Tromsø", (EUR / MWh)
+    "Molde", (EUR / MWh) # IGNORE MOLDE, same as Tr.heim
 MARKET DATA
     "Total Vol", (884300.0)
     "NO Buy Vol", (340886, int)
@@ -105,23 +105,17 @@ Marius & Jake Estimate:
 
 # these are the vars which can be changed
 selected_colums = [
-    "SE1",
-    "SE2",
-    "SE3",
+    "Oslo",
+    "Kr.sand",
+    "Tr.heim",
+    "Tromsø",
+    "Bergen",
+    "Month",
     "Weekday",
-    #"SE4"
-    #"DK1",
-    #"DK2",
-    #"FI",
-    #"Oslo",
-    #"Kr.sand",
-    #"Tromsø"
-    #"Bergen",
-    #"Molde"
 ] 
 
 output_variable = ( 
-    "SE1"  # what are we forecasting, in this thesis "System Price"
+    "Oslo"  # what are we forecasting, in this thesis "System Price"
 )
 if output_variable not in selected_colums:
     selected_colums.append(output_variable)
@@ -129,7 +123,7 @@ if "Date" in selected_colums:
     print("REMOVE DATE FROM SELECTED COLUMS/ OUTPUT VARIABLE, NOT FLOAT!")
 
 #Data processing - normalization and standardization - Standard is standardization
-standardize_data = True
+standardize_data = False 
 min_max_normalize_data = False
 
 if standardize_data and min_max_normalize_data:
@@ -159,9 +153,8 @@ if "Week" in selected_colums:
     input_length += 52
     selected_colums.remove("Week")  # want as seperate df
 hour_one_hot_encoding = False
-
 if "Hour" in selected_colums:
-    week_one_hot_encoding = True
+    hour_one_hot_encoding = True
     input_length += 23
     selected_colums.remove("Hour")  # want as seperate df
 
@@ -192,7 +185,7 @@ if week_one_hot_encoding:
 if hour_one_hot_encoding:
     selected_colums.append("Hour")  # for documentation
     week_one_hot = pd.get_dummies(hourly_data["Hour"], prefix="Hour")
-    data_used = pd.concat([data_used, hour_one_hot_encoding], axis=1)
+    data_used = pd.concat([data_used, week_one_hot], axis=1)
 
 training_test_split = date_hour_list.index('2020-01-01-0')
 training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
