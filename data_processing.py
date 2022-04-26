@@ -20,7 +20,6 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, normalize
 from sklearn.decomposition import PCA
 #import pywt
 from statsmodels.robust import mad
-from linear_regression import 
 
 """
 The test case study is designed by using data from 1 Jan 2014 to 31 Dec 2019 as training data and 1 Jan 2020 to
@@ -124,7 +123,7 @@ if "Date" in selected_colums:
     print("REMOVE DATE FROM SELECTED COLUMS/ OUTPUT VARIABLE, NOT FLOAT!")
 
 # Set base model which will
-base_model = "naive" # "naive", "linear_reg", "enhanced_naive" 
+base_model = "naive" # "naive", "linear_reg", "poly_reg", "enhanced_naive" 
 
 #Data processing - normalization and standardization - Standard is standardization
 standardize_data = True 
@@ -308,28 +307,31 @@ test_x = [] # 356 - (training_lenght + prediction_horizon - 1) lists of input li
 test_y = [] # 356 - (training_lenght + prediction_horizon - 1) lists of output list of lenght prediction_horizon(10) * 24
 
 ind = 0
-print(training_data_y[0:10*24])
-print(type(training_data_y))
-print(training_data_x[0:10*24])
-print(type(training_data_x))
+
 while ind + (training_length * 24)   <= len(training_data_x):
-    
+    forecast_start = date_hour_list[ind+training_length*24]
+
     training_x.append(training_data_x[ind:ind+training_length*24])
      
     # need to substract base model forecast here! Which will be added when forecasting in test!! 
-    # "naive", "linear_reg", "enhanced_naive" 
-    if base_model == "naive":
-        #print("naive base model !!")
-        ind = ind
-    elif base_model == "linear_reg":
-        print("linear reg base model !!")
-    elif base_model == "enhanced_naive":
-        print("enhanced naive base model !!")
-    else:
-        print("no base model used !!")
 
-    
-    training_y.append(training_data_y[ind:ind+prediction_horizon*24])
+    base_model_forecast = [0] * prediction_horizon*24
+    # "naive", "linear_reg", "poly_reg" "enhanced_naive" 
+    if base_model == "naive":
+        
+        base_model_forecast = [0] * prediction_horizon*24
+    elif base_model == "linear_reg":
+        base_model_forecast = [0] * prediction_horizon*24
+    elif base_model == "poly_reg":
+        base_model_forecast = [0] * prediction_horizon*24
+    elif base_model == "enhanced_naive":
+        base_model_forecast = [0] * prediction_horizon*24
+    else: # no model used
+        base_model_forecast = [0] * prediction_horizon*24
+
+    y = training_data_y[ind:ind+prediction_horizon*24] - base_model_forecast
+
+    training_y.append(y)
     ind += 24 
 
 ind = 0

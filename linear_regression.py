@@ -5,6 +5,15 @@ from sklearn.linear_model import LinearRegression
 #import seaborn as sns
 
 
+import statsmodels.api as sm
+from scipy import stats
+from sklearn.preprocessing import PolynomialFeatures
+
+import statsmodels.stats.api as sms
+
+
+
+
 selected_colums = [
     "System Price",
     "Oslo",
@@ -12,8 +21,8 @@ selected_colums = [
     "Tr.heim",
     "Tromsø",
     "Bergen",
-    "Month",
-    "Weekday"
+   # "Month",
+    #"Weekday"
 ] 
 
 output_variable = ( 
@@ -78,33 +87,66 @@ if hour_one_hot_encoding:
 training_test_split = date_hour_list.index('2020-01-01-0')
 training_data = lin_reg_data[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
 
+# train Ordinary Least Squares model
+def make_mlr_with_summary(days, training_data,poly):
+    x_sm = training_data[:-24*days]
+    y_sm = training_data[output_variable][24*days:]
 
-def make_mlr(days, training_data):
+    polynomial_features= PolynomialFeatures(degree=poly)
+    x_sm = polynomial_features.fit_transform(x_sm)
+
+    y_sm = y_sm.reset_index()
+    del y_sm["index"]
+    X_train = sm.add_constant(x_sm)
+    model = sm.OLS(y_sm, X_train)
+    result = model.fit()
+
+    print(result.summary())
+    # get values of the residuals
+    residual = result.resid
+    # run tests and get the p values
+    print('p value of Jarque-Bera test is: ', stats.jarque_bera(residual)[1])
+    print('p value of Shapiro-Wilk test is: ', stats.shapiro(residual)[1])
+    print('p value of Kolmogorov-Smirnov test is: ', stats.kstest(residual, 'norm')[1])
+    print('p value of Breusch–Pagan test is: ', sms.het_breuschpagan(result.resid, result.model.exog)[1])
+    print('p value of White test is: ', sms.het_white(result.resid, result.model.exog)[1])
+
+#make_mlr_with_summary(1,training_data,3)
+
+def make_mlr(days, training_data, poly):
     x = training_data[:-24*days]
     y = training_data[output_variable][24*days:] 
+
+    polynomial_features= PolynomialFeatures(degree=poly)
+    x = polynomial_features.fit_transform(x)
 
     mlr = LinearRegression()  
     mlr.fit(x, y)
     return mlr
 
-#mlr1 = make_mlr(1,training_data)
-#print("Intercept: ", mlr1.intercept_)
-#print("Coefficients:")
-#print(list(zip(training_data, mlr1.coef_)))
+
+
 
 mlr_models = []
-for i in range(1,32): # develop mlr models for different day horizions (1-31)
-    mlr_models.append(make_mlr(i,training_data))
+for i in range(1,31): # develop mlr models for different day horizions (1-31)
+    mlr_models.append(make_mlr(i,training_data,4))
+    #print("Intercept: ", mlr_models[0].intercept_)
+    #print("Coefficients:")
+    #print(list(zip(training_data, mlr_models[0].coef_)))
 
 
 
-def make_forecasts(start_date, number_of_days, lin_reg_data):
-    forecast_start = date_hour_list.index(start_date)
+def make_forecasts(start_date, number_of_days, lin_reg_data, poly):
+    forecast_start = date_hour_list.index(start_date) - 24
     forecast_basis_day = lin_reg_data[forecast_start:forecast_start+24] # day used as basis for forecast
+    
+    polynomial_features= PolynomialFeatures(degree=poly)
+    forecast_basis_day = polynomial_features.fit_transform(forecast_basis_day)
     
     predictions = []
     for i in range(number_of_days):
         predictions.extend(mlr_models[i].predict(forecast_basis_day))
     return predictions
     
-forecasts = make_forecasts('2020-08-02-0',10,lin_reg_data)
+forecasts = make_forecasts('2020-08-02-0',10,lin_reg_data,4)
+print(forecasts)
