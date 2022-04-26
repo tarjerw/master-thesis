@@ -3,7 +3,7 @@ import numpy as np
 from cgi import test
 import json
 
-selected_columns = ["SE1", 
+selected_columns_naive = ["SE1", 
     "SE2", 
     "SE3", 
     "SE4", 
@@ -19,6 +19,7 @@ selected_columns = ["SE1",
     "Weekday",
     "Holiday",
     "Month",
+    "Hour"
 ]
 
 
@@ -31,11 +32,11 @@ for index, element in enumerate(date_hour_list):
     hour = index % 24
     date_hour_list[index] = element + "-" + str(hour)
 
-naive_hourly_data = pd.DataFrame(hourly_data, columns=selected_columns) #so to not include irrelevant columns
+naive_hourly_data = pd.DataFrame(hourly_data, columns=selected_columns_naive) #so to not include irrelevant columns
 
  
 # Opening JSON file
-def get_dict_key(area,number): return "('" + str(area) + "', " + str(number) + ")" # used to produce dict key for json
+def get_dict_key(area,number): return "('" + str(area) + "', " + str(int(number)) + ")" # used to produce dict key for json
 with open('data_erling/coefficients/hour_coefficients.json') as json_file:
     hour_coefficients = json.load(json_file)
 with open('data_erling/coefficients/month_coefficients.json') as json_file:
@@ -45,22 +46,61 @@ with open('data_erling/coefficients/weekday_coefficients.json') as json_file:
 with open('data_erling/coefficients/holiday_coefficients.json') as json_file:
     holiday_coefficients = json.load(json_file)
 
-print(holiday_coefficients["Oslo"])
-print(weekday_coefficients[get_dict_key("Oslo",1)])
-print(month_coefficients[get_dict_key("Oslo",1)])
-print(weekday_coefficients[get_dict_key("Oslo",1)])
-
-
-
-
 #future_day_weekday = daily_data.iloc[day_index]["Weekday"]
 #current_weekday = future_day_weekday
 
-def make_forecasts(start_date, number_of_days):
-    forecast_start = date_hour_list.index(start_date)
+def make_forecasts(start_date, number_of_days,area, pure_naive = False):
+    forecast_start = date_hour_list.index(start_date) - 24
+    forecast_basis_day = naive_hourly_data[forecast_start:forecast_start+24] # day used as basis for forecast
     
+    forecast_period = naive_hourly_data[forecast_start + 24:forecast_start+24 + 24*number_of_days]
+    predictions = [] 
+
+    if pure_naive == True: 
+        naive_day_forecast = forecast_basis_day[area]
+        for _ in range(number_of_days):
+            for h in range(24):
+                predictions(naive_day_forecast.iloc[h])
+        return predictions
+
+    basis_value = sum(forecast_basis_day[area])/24 
+
     
-    predictions = []
+        
+    
+    if forecast_period.iloc[0]["Holiday"] == 1:
+        basis_value = basis_value * holiday_coefficients[area]
+    basis_value = basis_value * weekday_coefficients[get_dict_key(area,forecast_basis_day.iloc[0]["Weekday"])] 
+    
+    current_month = forecast_basis_day.iloc[0]["Month"]
+    if current_month == 1:
+        prev_month = 12
+        next_month = 2
+    elif current_month == 12:
+        prev_month = 11
+        next_month = 1
+    else:
+        prev_month = current_month - 1
+        next_month = current_month + 1
+
+    #effect per day of monthly seasonality
+    monthly_seasonality = (month_coefficients[get_dict_key(area,next_month)] / month_coefficients[get_dict_key(area,prev_month)])**(1/60)
+    print(monthly_seasonality)
+
+    
+
     for i in range(number_of_days):
-        predictions.extend(mlr_models[i].predict(forecast_basis_day))
+        forecast_day = forecast_period[i*24:(i+1)*24]
+        day_coef = weekday_coefficients[get_dict_key(area,forecast_day.iloc[0]["Weekday"])]
+        month_coef = monthly_seasonality ** (i+1)
+        holiday_coef = 1
+        if forecast_day.iloc[0]["Holiday"] == 1:
+            holiday_coef = holiday_coefficients[area]
+
+        for h in range(24):
+            hour_coef = hour_coefficients[get_dict_key(area,forecast_day.iloc[h]["Hour"] + 1)]
+            hour_prediction = basis_value * day_coef * holiday_coef * hour_coef
+            predictions.append(hour_prediction)
+    
     return predictions
+print(make_forecasts("2017-02-04-0",5,"SE1",False))

@@ -14,7 +14,7 @@ import statsmodels.stats.api as sms
 
 
 
-selected_colums = [
+selected_colums_regression = [
     "System Price",
     "Oslo",
     "Kr.sand",
@@ -29,8 +29,8 @@ output_variable = (
     "Oslo"  # what are we forecasting, in this thesis area bidding prices
 )
 
-if output_variable not in selected_colums:
-    selected_colums.append(output_variable)
+if output_variable not in selected_colums_regression:
+    selected_colums_regression.append(output_variable)
     print("added output variable into selected columns")
 
 # retrieves data
@@ -43,43 +43,43 @@ for index, element in enumerate(date_hour_list):
 
 # converting month, weekday and week to one-hot encoding
 month_one_hot_encoding = False
-if "Month" in selected_colums:
+if "Month" in selected_colums_regression:
     month_one_hot_encoding = True
-    selected_colums.remove("Month")  # want as seperate df
+    selected_colums_regression.remove("Month")  # want as seperate df
 weekday_one_hot_encoding = False
-if "Weekday" in selected_colums:
+if "Weekday" in selected_colums_regression:
     weekday_one_hot_encoding = True
-    selected_colums.remove("Weekday")  # want as seperate df
+    selected_colums_regression.remove("Weekday")  # want as seperate df
 week_one_hot_encoding = False
-if "Week" in selected_colums:
+if "Week" in selected_colums_regression:
     week_one_hot_encoding = True
-    selected_colums.remove("Week")  # want as seperate df
+    selected_colums_regression.remove("Week")  # want as seperate df
 hour_one_hot_encoding = False
-if "Hour" in selected_colums:
+if "Hour" in selected_colums_regression:
     hour_one_hot_encoding = True
-    selected_colums.remove("Hour")  # want as seperate df
+    selected_colums_regression.remove("Hour")  # want as seperate df
 
-lin_reg_data = pd.DataFrame(hourly_data, columns=selected_colums)
+lin_reg_data = pd.DataFrame(hourly_data, columns=selected_colums_regression)
 lin_reg_data = lin_reg_data.astype(float)
 
 # converting month, weekday and week to one-hot encoding part 2
 if month_one_hot_encoding:
-    selected_colums.append("Month")  # for documentation
+    selected_colums_regression.append("Month")  # for documentation
     month_one_hot = pd.get_dummies(hourly_data["Month"], prefix="Month")
     lin_reg_data = pd.concat([lin_reg_data, month_one_hot], axis=1)
     del lin_reg_data['Month_1']
 if weekday_one_hot_encoding:
-    selected_colums.append("Weekday")  # for documentation
+    selected_colums_regression.append("Weekday")  # for documentation
     weekday_one_hot = pd.get_dummies(hourly_data["Weekday"], prefix="Weekday")
     lin_reg_data = pd.concat([lin_reg_data, weekday_one_hot], axis=1)
     del lin_reg_data['Weekday_1']
 if week_one_hot_encoding:
-    selected_colums.append("Week")  # for documentation
+    selected_colums_regression.append("Week")  # for documentation
     week_one_hot = pd.get_dummies(hourly_data["Week"], prefix="Week")
     lin_reg_data = pd.concat([lin_reg_data, week_one_hot], axis=1)
     del lin_reg_data['Week_1']
 if hour_one_hot_encoding:
-    selected_colums.append("Hour")  # for documentation
+    selected_colums_regression.append("Hour")  # for documentation
     week_one_hot = pd.get_dummies(hourly_data["Hour"], prefix="Hour")
     lin_reg_data = pd.concat([lin_reg_data, week_one_hot], axis=1)
     del lin_reg_data['Hour_1']
@@ -129,7 +129,7 @@ def make_mlr(days, training_data, poly):
 
 mlr_models = []
 for i in range(1,31): # develop mlr models for different day horizions (1-31)
-    mlr_models.append(make_mlr(i,training_data,4))
+    mlr_models.append(make_mlr(i,training_data,2))
     #print("Intercept: ", mlr_models[0].intercept_)
     #print("Coefficients:")
     #print(list(zip(training_data, mlr_models[0].coef_)))
@@ -148,5 +148,5 @@ def make_forecasts(start_date, number_of_days, lin_reg_data, poly):
         predictions.extend(mlr_models[i].predict(forecast_basis_day))
     return predictions
     
-forecasts = make_forecasts('2020-08-02-0',10,lin_reg_data,4)
+forecasts = make_forecasts('2020-08-02-5',10,lin_reg_data,2)
 print(forecasts)
