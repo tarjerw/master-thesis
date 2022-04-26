@@ -20,6 +20,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler, normalize
 from sklearn.decomposition import PCA
 #import pywt
 from statsmodels.robust import mad
+from linear_regression import 
 
 """
 The test case study is designed by using data from 1 Jan 2014 to 31 Dec 2019 as training data and 1 Jan 2020 to
@@ -122,8 +123,11 @@ if output_variable not in selected_colums:
 if "Date" in selected_colums:
     print("REMOVE DATE FROM SELECTED COLUMS/ OUTPUT VARIABLE, NOT FLOAT!")
 
+# Set base model which will
+base_model = "naive" # "naive", "linear_reg", "enhanced_naive" 
+
 #Data processing - normalization and standardization - Standard is standardization
-standardize_data = False 
+standardize_data = True 
 min_max_normalize_data = False
 
 if standardize_data and min_max_normalize_data:
@@ -169,6 +173,8 @@ for index, element in enumerate(date_hour_list):
 data_used = pd.DataFrame(hourly_data, columns=selected_colums)
 data_used = data_used.astype(float) #remove date from selected columns
 
+
+
 # converting month, weekday and week to one-hot encoding part 2
 if month_one_hot_encoding:
     selected_colums.append("Month")  # for documentation
@@ -192,8 +198,6 @@ training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 
 test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 year , need to talk about COVID
 
 
-# NEED TO DO SOME DATA PREPROCESSING HERE !!! 
-
 def find_pca_explained_variance(pca_obj):
     plt.plot(np.cumsum(pca_obj.explained_variance_ratio_))
     plt.show()
@@ -208,7 +212,7 @@ training_data_trans, pca_obj = principal_component_analysis(training_data)
 
 active_price_colums = [x for x in time_series_columns if x in training_data.columns]
 
-def standardize_data_func(training_data, test_data, active_cols):
+def standardize_data_func(training_data, test_data, active_cols): # avg = 0, sd = 1 
     pd.set_option("mode.chained_assignment", None) 
     training_length = len(training_data)
     test_length = len(test_data)
@@ -220,7 +224,7 @@ def standardize_data_func(training_data, test_data, active_cols):
     return pd.DataFrame(training_data, columns=training_data.columns), pd.DataFrame(test_data, columns=test_data.columns)
 
 
-def min_max_normalize_data_func(training_data, test_data, active_cols):
+def min_max_normalize_data_func(training_data, test_data, active_cols): # min max 0 to 1
     pd.set_option("mode.chained_assignment", None)
     training_length = len(training_data)
     test_length = len(test_data)
@@ -230,14 +234,6 @@ def min_max_normalize_data_func(training_data, test_data, active_cols):
         training_data[col] = scaler.transform(training_data[col].to_numpy().reshape((-1, 1))).reshape((training_length,))
         test_data[col] = scaler.transform(test_data[col].to_numpy().reshape((-1, 1))).reshape((test_length,))
     return pd.DataFrame(training_data, columns=training_data.columns), pd.DataFrame(test_data, columns=test_data.columns)
-
-if standardize_data:
-    training_data, test_data = standardize_data_func(training_data, test_data, active_price_colums)
-elif min_max_normalize_data:
-    training_data, test_data = min_max_normalize_data_func(training_data, test_data, active_price_colums)
-else:
-    print('No standardization/normalization was made to the data')
-
 
 def unit_vector_normalization(data):
     return pd.DataFrame(normalize(data), columns=data.columns)
@@ -279,15 +275,23 @@ def asinh_transform_dataset(training_data, test_data):
         test_data[row, :] = np.arcsinh(test_data[row, :])
     return pd.DataFrame(training_data, columns=cols), pd.DataFrame(test_data, columns=cols)
 
-
 # split into x (input vars) and y (target system price) data
-training_data_x = training_data[0:-prediction_horizon * 24]
+test_data_y = test_data[training_length * 24 :]
+test_data_y = test_data_y[output_variable] # will get 356 different training cases
 training_data_y = training_data[training_length * 24:]
 training_data_y = training_data_y[output_variable] # will get 2181 different training cases
 
+# Do standardization
+if standardize_data:
+    training_data, test_data = standardize_data_func(training_data, test_data, active_price_colums)
+elif min_max_normalize_data:
+    training_data, test_data = min_max_normalize_data_func(training_data, test_data, active_price_colums)
+else:
+    print('No standardization/normalization was made to the data')
+
+# split into x (input vars) and y (target system price) data
+training_data_x = training_data[0:-prediction_horizon * 24]
 test_data_x = test_data[0:-prediction_horizon * 24]
-test_data_y = test_data[training_length * 24 :]
-test_data_y = test_data_y[output_variable] # will get 356 different training cases
 
 
 # convert training data DFs to np
@@ -297,8 +301,6 @@ test_data_x = test_data_x.to_numpy()
 test_data_y = test_data_y.to_numpy()
 
 
-
-
 training_x = [] # 2181 - (training_lenght + prediction_horizon - 1) lists of input list of lenght training_lenght(10) * 24
 training_y = [] # 2181 - (training_lenght + prediction_horizon - 1) lists of output list of lenght prediction_horizon(10) * 24
 
@@ -306,15 +308,34 @@ test_x = [] # 356 - (training_lenght + prediction_horizon - 1) lists of input li
 test_y = [] # 356 - (training_lenght + prediction_horizon - 1) lists of output list of lenght prediction_horizon(10) * 24
 
 ind = 0
+print(training_data_y[0:10*24])
+print(type(training_data_y))
+print(training_data_x[0:10*24])
+print(type(training_data_x))
 while ind + (training_length * 24)   <= len(training_data_x):
+    
     training_x.append(training_data_x[ind:ind+training_length*24])
+     
+    # need to substract base model forecast here! Which will be added when forecasting in test!! 
+    # "naive", "linear_reg", "enhanced_naive" 
+    if base_model == "naive":
+        #print("naive base model !!")
+        ind = ind
+    elif base_model == "linear_reg":
+        print("linear reg base model !!")
+    elif base_model == "enhanced_naive":
+        print("enhanced naive base model !!")
+    else:
+        print("no base model used !!")
+
+    
     training_y.append(training_data_y[ind:ind+prediction_horizon*24])
     ind += 24 
 
 ind = 0
 while ind + ( training_length * 24 ) <= len(test_data_x):
     test_x.append(test_data_x[ind:ind+training_length*24])
-    test_y.append(test_data_y[ind:ind+prediction_horizon*24])
+    test_y.append(test_data_y[ind:ind+prediction_horizon*24]) 
     ind += 24 
 
 training_x = np.array(training_x)
