@@ -123,11 +123,11 @@ def run_test(model_used,start_time):
     elif model_used == "Regression":
         forecasted_values = regression_forecast
     elif model_used == "CNN":
-        CNN_forecast = CNN_forecasts[test_start]
+        CNN_forecast = CNN_forecasts[test_start] 
         if parameters["base_model"] == "naive":
-            forecasted_values = CNN_forecast + naive_forecast
+            forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + naive_forecast
         elif parameters["base_model"] == "regression":
-            forecasted_values = CNN_forecast + regression_forecast
+            forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + regression_forecast
         else:
             forecasted_values = CNN_forecast
     
@@ -151,7 +151,6 @@ def run_complete_test(model_used, start_time, end_time = "none"):
     RMSE_list = []
     SMAPE_list = []
 
-
     for i in range(steps):
         if date == end_time:
             break
@@ -162,7 +161,20 @@ def run_complete_test(model_used, start_time, end_time = "none"):
         SMAPE_list.append(error_metrics["SMAPE"])
         RMSE_list.append(error_metrics["RMSE"])
         cummulative_error_list.extend(error_list)
-    
+         
+    hour_error_list = [[]]
+    for ind,element in enumerate(cummulative_error_list):
+        i = ind % (24*parameters["prediction_horizon"])
+        if len(hour_error_list) <= i:
+            hour_error_list.append([element])
+        else:
+            hour_error_list[i].append(element)
+    hour_error_MAE = [MAE_error(hour) for hour in hour_error_list]
+    hour_error_SMAPE = [MAE_error(hour) for hour in hour_error_list]
+    hour_error_RMSE = [MAE_error(hour) for hour in hour_error_list]
+    print(f"hour error MAE: {hour_error_MAE}")
+    print(f"hour error SMAPE: {hour_error_SMAPE}")
+    print(f"hour error RMSE: {hour_error_RMSE}")
 
     print(get_metrics(cummulative_error_list))
     print(f"MAE; mean: {np.mean(MAE_list)}, median: {np.median(MAE_list)}, std: {np.std(MAE_list)}, min: {np.min(MAE_list)}, max: {np.max(MAE_list)}")
@@ -183,7 +195,7 @@ def visualize_date(model_used,date):
     plt.title(f"Forecast vs. actual {date} - {get_new_date(date,parameters['prediction_horizon'],True)}")
     plt.show()
 
-visualize_date("CNN","2020-02-02-0")
+visualize_date("Regression","2020-02-02-0")
 visualize_date("CNN","2020-03-02-0")
 visualize_date("CNN","2020-04-02-0")
 visualize_date("CNN","2020-05-02-0")

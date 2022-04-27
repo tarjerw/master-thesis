@@ -73,19 +73,19 @@ parameters = {
     
     # from data processing (must also be changed there)
   
-    "training_length": 10,
-    "output_variable": "Oslo",
-    "prediction_horizon": 10,
+    "training_length": 7,
+    "output_variable": "Tromsø",
+    "prediction_horizon": 7,
     "selected_colums": selected_colums,
     "output_variable": output_variable,
-    "base_model": "naive", # "naive", "regression"
-    "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
+    "base_model": "regression", # "naive", "regression"
+    "regression_poly": 2, # what factor of polynomials in regression (1 = linear)
     "enhanced_naive": True, # enhanced naive vs. naive 
     "standardize_data": True, # method of preprocessing 
     "min_max_normalize_data": False, # method of preprocessing 
     "test_split": '2020-01-01-0',# first hour in test set
 
-    "TCN_factor": 0.00,  # factor multiplied with TCN effect on price, set to 0.0 if want to test naive/ enhanced naive, else (0.75)
+    "TCN_factor": 1.00,  # factor multiplied with TCN effect on price, set to 0.0 if want to test naive/ enhanced naive, else (0.75)
     
     "selected_colums_regression": selected_colums_regression,
 
