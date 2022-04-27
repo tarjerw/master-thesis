@@ -2,32 +2,20 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import PolynomialFeatures
 #import seaborn as sns
 
 
 import statsmodels.api as sm
 from scipy import stats
-from sklearn.preprocessing import PolynomialFeatures
+
+from parameters import parameters
 
 import statsmodels.stats.api as sms
 
+selected_colums_regression = parameters["selected_colums_regression"]
 
-
-
-selected_colums_regression = [
-    "System Price",
-    "Oslo",
-    "Kr.sand",
-    "Tr.heim",
-    "Tromsø",
-    "Bergen",
-   # "Month",
-    #"Weekday"
-] 
-
-output_variable = ( 
-    "Oslo"  # what are we forecasting, in this thesis area bidding prices
-)
+output_variable = parameters["output_variable"]
 
 if output_variable not in selected_colums_regression:
     selected_colums_regression.append(output_variable)
@@ -84,13 +72,13 @@ if hour_one_hot_encoding:
     lin_reg_data = pd.concat([lin_reg_data, week_one_hot], axis=1)
     del lin_reg_data['Hour_1']
 
-training_test_split = date_hour_list.index('2020-01-01-0')
-training_data = lin_reg_data[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
+training_test_split = date_hour_list.index(parameters["test_split"])
+training_data_regression = lin_reg_data[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
 
 # train Ordinary Least Squares model
-def make_mlr_with_summary(days, training_data,poly):
-    x_sm = training_data[:-24*days]
-    y_sm = training_data[output_variable][24*days:]
+def make_mlr_with_summary(days, training_data_regression,poly):
+    x_sm = training_data_regression[:-24*days]
+    y_sm = training_data_regression[output_variable][24*days:]
 
     polynomial_features= PolynomialFeatures(degree=poly)
     x_sm = polynomial_features.fit_transform(x_sm)
@@ -111,11 +99,11 @@ def make_mlr_with_summary(days, training_data,poly):
     print('p value of Breusch–Pagan test is: ', sms.het_breuschpagan(result.resid, result.model.exog)[1])
     print('p value of White test is: ', sms.het_white(result.resid, result.model.exog)[1])
 
-#make_mlr_with_summary(1,training_data,3)
+make_mlr_with_summary(1,training_data_regression,1)
 
-def make_mlr(days, training_data, poly):
-    x = training_data[:-24*days]
-    y = training_data[output_variable][24*days:] 
+def make_mlr(days, training_data_regression, output_variable, poly):
+    x = training_data_regression[:-24*days]
+    y = training_data_regression[output_variable][24*days:] 
 
     polynomial_features= PolynomialFeatures(degree=poly)
     x = polynomial_features.fit_transform(x)
@@ -124,19 +112,16 @@ def make_mlr(days, training_data, poly):
     mlr.fit(x, y)
     return mlr
 
-
-
-
 mlr_models = []
 for i in range(1,31): # develop mlr models for different day horizions (1-31)
-    mlr_models.append(make_mlr(i,training_data,2))
+    mlr_models.append(make_mlr(i,training_data_regression,output_variable,2))
     #print("Intercept: ", mlr_models[0].intercept_)
     #print("Coefficients:")
-    #print(list(zip(training_data, mlr_models[0].coef_)))
+    #print(list(zip(training_data_regression, mlr_models[0].coef_)))
 
 
 
-def make_forecasts(start_date, number_of_days, lin_reg_data, poly):
+def make_forecasts_regression(start_date, number_of_days, lin_reg_data,mlr_models, poly):
     forecast_start = date_hour_list.index(start_date) - 24
     forecast_basis_day = lin_reg_data[forecast_start:forecast_start+24] # day used as basis for forecast
     
@@ -148,5 +133,5 @@ def make_forecasts(start_date, number_of_days, lin_reg_data, poly):
         predictions.extend(mlr_models[i].predict(forecast_basis_day))
     return predictions
     
-forecasts = make_forecasts('2020-08-02-5',10,lin_reg_data,2)
-print(forecasts)
+#forecasts = make_forecasts_regression('2020-08-02-5',10,lin_reg_data,mlr_models,2)
+#print(forecasts)

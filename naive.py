@@ -20,9 +20,7 @@ selected_columns_naive = ["SE1",
     "Holiday",
     "Month",
     "Hour"
-]
-
-
+] # should be no need to change this 
 
 # retrieves data
 hourly_data = pd.read_csv("data_erling/hourly_data_areas.csv")
@@ -36,7 +34,6 @@ naive_hourly_data = pd.DataFrame(hourly_data, columns=selected_columns_naive) #s
 
  
 # Opening JSON file
-def get_dict_key(area,number): return "('" + str(area) + "', " + str(int(number)) + ")" # used to produce dict key for json
 with open('data_erling/coefficients/hour_coefficients.json') as json_file:
     hour_coefficients = json.load(json_file)
 with open('data_erling/coefficients/month_coefficients.json') as json_file:
@@ -46,21 +43,19 @@ with open('data_erling/coefficients/weekday_coefficients.json') as json_file:
 with open('data_erling/coefficients/holiday_coefficients.json') as json_file:
     holiday_coefficients = json.load(json_file)
 
-#future_day_weekday = daily_data.iloc[day_index]["Weekday"]
-#current_weekday = future_day_weekday
+def make_forecasts_naive(start_date, number_of_days,area,naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients, enhanced_naive = True):
+    def get_dict_key(area,number): return "('" + str(area) + "', " + str(int(number)) + ")" # used to produce dict key for json
 
-def make_forecasts(start_date, number_of_days,area, pure_naive = False):
     forecast_start = date_hour_list.index(start_date) - 24
     forecast_basis_day = naive_hourly_data[forecast_start:forecast_start+24] # day used as basis for forecast
     
     forecast_period = naive_hourly_data[forecast_start + 24:forecast_start+24 + 24*number_of_days]
     predictions = [] 
 
-    if pure_naive == True: 
-        naive_day_forecast = forecast_basis_day[area]
+    if enhanced_naive == False: 
         for _ in range(number_of_days):
             for h in range(24):
-                predictions(naive_day_forecast.iloc[h])
+                predictions.append(forecast_basis_day.iloc[h][area])
         return predictions
 
     basis_value = sum(forecast_basis_day[area])/24 
@@ -85,7 +80,7 @@ def make_forecasts(start_date, number_of_days,area, pure_naive = False):
 
     #effect per day of monthly seasonality
     monthly_seasonality = (month_coefficients[get_dict_key(area,next_month)] / month_coefficients[get_dict_key(area,prev_month)])**(1/60)
-    print(monthly_seasonality)
+    
 
     
 
@@ -103,4 +98,4 @@ def make_forecasts(start_date, number_of_days,area, pure_naive = False):
             predictions.append(hour_prediction)
     
     return predictions
-print(make_forecasts("2017-02-04-0",5,"SE1",False))
+#print(make_forecasts_naive("2017-02-04-0",5,"SE1",naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients,True))
