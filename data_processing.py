@@ -110,7 +110,7 @@ if hour_one_hot_encoding:
     week_one_hot = pd.get_dummies(hourly_data["Hour"], prefix="Hour")
     data_used = pd.concat([data_used, week_one_hot], axis=1)
 
-training_test_split = date_hour_list.index('2020-01-01-0')
+training_test_split = date_hour_list.index(parameters["test_split"])
 training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
 test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 year , need to talk about COVID
 
@@ -268,7 +268,7 @@ def describe_data(data):
     print(data.median())
     print(data.describe())
 
-describe_data(hourly_data["Molde"])
-describe_data(hourly_data["Tr.heim"])
+describe_data(hourly_data["Kr.sand"])
+describe_data(hourly_data["Oslo"])
 
 print("all good :)")

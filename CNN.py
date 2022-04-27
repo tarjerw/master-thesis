@@ -29,9 +29,6 @@ from tensorflow.python.keras.losses import BinaryCrossentropy
 
 from tcn import TCN
 
-
-from data_processing import input_length, training_length
-
 # "learning_rate": 0.001,  # Learning rate the neural net
 # activation functions: linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
 # "anet_optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
@@ -41,7 +38,7 @@ class CNN:
     def __init__(self) -> None:
         return None
 
-    def initialize(self, parameters):
+    def initialize(self, parameters, input_length):
         if parameters["starting_cnn"] != "":
             self.load_model(parameters["starting_cnn"])
             return self
@@ -49,7 +46,7 @@ class CNN:
         self.model = Sequential()
 
         self.model.add(
-            InputLayer(input_shape=(training_length * 24, input_length))
+            InputLayer(input_shape=(parameters["training_length"] * 24, input_length))
         )  # need to add input shape here
         
         # adding the TCN layer here

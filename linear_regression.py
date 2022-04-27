@@ -99,7 +99,7 @@ def make_mlr_with_summary(days, training_data_regression,poly):
     print('p value of Breusch–Pagan test is: ', sms.het_breuschpagan(result.resid, result.model.exog)[1])
     print('p value of White test is: ', sms.het_white(result.resid, result.model.exog)[1])
 
-make_mlr_with_summary(1,training_data_regression,1)
+#make_mlr_with_summary(1,training_data_regression,1)
 
 def make_mlr(days, training_data_regression, output_variable, poly):
     x = training_data_regression[:-24*days]

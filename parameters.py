@@ -20,9 +20,10 @@ selected_colums_regression = [
     "Kr.sand",
     "Tr.heim",
     "Tromsø",
-    "Bergen",
+   # "Bergen",
    #"Month",
-    #"Weekday"
+    #"Weekday",
+   # "Holiday",
 ] 
 
 
@@ -34,11 +35,11 @@ parameters = {
     # Path for continuing training (e.g "/Users/tarje/Desktop/Fordypningoppgvae/git/models/6/11.01.2021/13.39.29, "" for no pre-load)
     "starting_cnn": "",
     # params for CNN:
-    "epochs": 100,
+    "epochs": 3,
     "batch_size": 256,  # batch size
     "validation_split": 0.1,
     "learning_rate": 0.00000002,  # Learning rate the neural net
-    "hidden_layers": [64, 32,32],  # Hidden layers for CNN
+    "hidden_layers": [32, 16,8],  # Hidden layers for CNN
     "activation_functions": [
         "relu",
         "relu",
@@ -46,7 +47,7 @@ parameters = {
     ],  # activation functions for hidden layers, (can't be shorter than "hidden_layers")
     # linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
     "last_layer_activation": "linear",
-    "optimizer": "SGD",  # Adam, SGD, Adagrad, RMSprop
+    "optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
     "loss": "mean_squared_error",  # loss function in CNN, "mean_absolute_error", "mean_squared_error"
     "verbose": 1,  # 0,1 or 2, affects data feedback while training (no impact on result)
     "metrics": [
@@ -56,8 +57,8 @@ parameters = {
         "binary_crossentropy"
     ],  # (no impact on result)
     # TCN parameters:
-    "TCN_nb_filters": 32,  # the more the better, but be wary of overfitting at some point
-    "TCN_kernel_size": 32,  #  how many time steps considered (depend on how long back the data is dependent), important param, can't be longer than training_lenght
+    "TCN_nb_filters": 16,  # the more the better, but be wary of overfitting at some point
+    "TCN_kernel_size": 16,  #  how many time steps considered (depend on how long back the data is dependent), important param, can't be longer than training_lenght
     "TCN_nb_stacks": 1,  # Not very useful unless your sequences are very long (like waveforms with hundreds of thousands of time steps)
     "TCN_dilations": (
         1,
@@ -65,10 +66,9 @@ parameters = {
         4,
         8,
         16,
-        32,
     ),  # It controls how deep your TCN layer is. Usually, consider a list with multiple of two
     "TCN_padding": "causal",  # causal prevents information leakage (keep as is)
-    "TCN_dropout_rate": 0.00,  # can be used to reduce overfitting (0 or lower than 0.05)
+    "TCN_dropout_rate": 0.01,  # can be used to reduce overfitting (0 or lower than 0.05)
     "TCN_activiation": "relu",  # leave to default (relu)
     
     # from data processing (must also be changed there)
@@ -79,7 +79,7 @@ parameters = {
     "selected_colums": selected_colums,
     "output_variable": output_variable,
     "base_model": "naive", # "naive", "regression"
-    "regression_poly": 3, # what factor of polynomials in regression (1 = linear)
+    "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
     "enhanced_naive": True, # enhanced naive vs. naive 
     "standardize_data": True, # method of preprocessing 
     "min_max_normalize_data": False, # method of preprocessing 
