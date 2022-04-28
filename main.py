@@ -63,8 +63,6 @@ from data_processing import (
 
 from tqdm import trange
 
-model_run = "CNN" # "CNN", "Naive", "Regression" what model to be run?
-
 # setting random seed for numpy and tensorflow XD
 seed(parameters["numpy_random_seed"])
 tf.random.set_seed(parameters["tenserflow_random_seed"])
@@ -122,7 +120,7 @@ def run_test(model_used,start_time):
         forecasted_values = naive_forecast
     elif model_used == "Regression":
         forecasted_values = regression_forecast
-    elif model_used == "CNN":
+    elif model_used == "TCN" or model_used =="DNN":
         CNN_forecast = CNN_forecasts[test_start] 
         if parameters["base_model"] == "naive":
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + naive_forecast
@@ -130,7 +128,10 @@ def run_test(model_used,start_time):
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + regression_forecast
         else:
             forecasted_values = CNN_forecast
-    
+    else:
+        print("NO MODEL SELECTED!! Change model_used varaible!")
+
+
     error_list = []
     # get list to calc error metrics:
     for ind, element in enumerate(forecasted_values):
@@ -142,6 +143,7 @@ def run_test(model_used,start_time):
     return forecasted_values, actual, get_metrics(error_list), error_list
 
 def run_complete_test(model_used, start_time, end_time = "none"):
+    
     steps = len(CNN_forecasts)
     date = get_new_date(start_time,-1)
 
@@ -184,18 +186,31 @@ def run_complete_test(model_used, start_time, end_time = "none"):
     return forecast_dict
 
 
-run_complete_test("Naive",get_new_date(parameters["test_split"],parameters["training_length"]))
+
+run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
+
+def save_model(
+    model, parameters
+):  # used to save the anet model
+    print("hey hey")
+    BASE_PATH = f"models/{datetime.datetime.now().strftime('%m.%d.%Y/%H.%M.%S')}"
+    model.save_model(BASE_PATH)
+    parameters.pop("metrics")
+    parameters.pop("verbose")
+
+    with open(f"{BASE_PATH}/parameters.json", "w") as file:
+        json.dump(parameters, file, indent=4)
+
+save_model(model, parameters)
+
 
 def visualize_date(model_used,date):
     forecasted, actual, error_metrics, error_list = run_test(model_used,date)
-    plt.style.use('classic')
-    plt.plot(forecasted,label="Forecasted")
+    plt.style.use(parameters["plt_style"]) 
+    plt.plot(forecasted,label=f"Forecasted ")
     plt.plot(actual,label="Actual")
     plt.legend(loc="upper left")
-    plt.title(f"Forecast vs. actual {date} - {get_new_date(date,parameters['prediction_horizon'],True)}")
+    plt.title(f"Forecast ({model_used}) vs. actual {date} - {get_new_date(date,parameters['prediction_horizon'],True)}")
     plt.show()
-
-visualize_date("Regression","2020-02-02-0")
-visualize_date("CNN","2020-03-02-0")
-visualize_date("CNN","2020-04-02-0")
-visualize_date("CNN","2020-05-02-0")
+print(training_x.shape)
+#visualize_date(parameters["model_used"],"2020-02-02-0")

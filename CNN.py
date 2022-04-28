@@ -50,8 +50,9 @@ class CNN:
         )  # need to add input shape here
         
         # adding the TCN layer here
-        self.model.add(
-            TCN(
+        if parameters["model_used"] == "TCN":
+            self.model.add(
+                TCN(
                 nb_filters=parameters["TCN_nb_filters"],
                 kernel_size=parameters["TCN_kernel_size"],
                 nb_stacks=parameters["TCN_nb_stacks"],
@@ -59,8 +60,10 @@ class CNN:
                 padding=parameters["TCN_padding"],
                 dropout_rate=parameters["TCN_dropout_rate"],
                 activation=parameters["TCN_activiation"],
+                )
             )
-        )
+        else: # DNN
+            self.model.add(Flatten())
         
         if len(parameters["hidden_layers"]) < len(parameters["activation_functions"]):
             print("NEED TO HAVE ACTIVATION FUNCTIONS EQUAL TO NUMBER OF HIDDEN LAYERS DUMBASS!")
