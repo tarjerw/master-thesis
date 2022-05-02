@@ -29,9 +29,6 @@ from tensorflow.python.keras.losses import BinaryCrossentropy
 
 from tcn import TCN
 
-
-from data_processing import input_length, training_length
-
 # "learning_rate": 0.001,  # Learning rate the neural net
 # activation functions: linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
 # "anet_optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
@@ -41,7 +38,7 @@ class CNN:
     def __init__(self) -> None:
         return None
 
-    def initialize(self, parameters):
+    def initialize(self, parameters, input_length):
         if parameters["starting_cnn"] != "":
             self.load_model(parameters["starting_cnn"])
             return self
@@ -49,12 +46,13 @@ class CNN:
         self.model = Sequential()
 
         self.model.add(
-            InputLayer(input_shape=(training_length * 24, input_length))
+            InputLayer(input_shape=(parameters["training_length"] * 24, input_length))
         )  # need to add input shape here
         
         # adding the TCN layer here
-        self.model.add(
-            TCN(
+        if parameters["model_used"] == "TCN":
+            self.model.add(
+                TCN(
                 nb_filters=parameters["TCN_nb_filters"],
                 kernel_size=parameters["TCN_kernel_size"],
                 nb_stacks=parameters["TCN_nb_stacks"],
@@ -62,8 +60,10 @@ class CNN:
                 padding=parameters["TCN_padding"],
                 dropout_rate=parameters["TCN_dropout_rate"],
                 activation=parameters["TCN_activiation"],
+                )
             )
-        )
+        else: # DNN
+            self.model.add(Flatten())
         
         if len(parameters["hidden_layers"]) < len(parameters["activation_functions"]):
             print("NEED TO HAVE ACTIVATION FUNCTIONS EQUAL TO NUMBER OF HIDDEN LAYERS DUMBASS!")
