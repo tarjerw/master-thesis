@@ -212,5 +212,6 @@ def visualize_date(model_used,date):
     plt.legend(loc="upper left")
     plt.title(f"Forecast ({model_used}) vs. actual {date} - {get_new_date(date,parameters['prediction_horizon'],True)}")
     plt.show()
-print(training_x.shape)
+print(test_x.shape)
+print(test_y.shape)
 #visualize_date(parameters["model_used"],"2020-02-02-0")

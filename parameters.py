@@ -91,6 +91,9 @@ parameters = {
     "TCN_activiation": "relu",  # leave to default (relu)
     "TCN_factor": 1.00,  # factor multiplied with TCN effect on price
 
+    #LSTM parameters:
+    
+
     # setting random seed
     "tenserflow_random_seed": 69,
     "numpy_random_seed": 420,
