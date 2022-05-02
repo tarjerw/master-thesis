@@ -12,3 +12,6 @@ print([x for x in daily_prices.columns if x in hourly_prices.columns])
 
 print('Variables distinct for daily data')
 print([x for x in daily_prices if x not in hourly_prices.columns])
+
+
+
