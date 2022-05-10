@@ -1,6 +1,7 @@
+from os import lstat
 import tensorflow as tf
 
-model_used = "TCN" # "Regression", "Naive", "TCN", "DNN"
+model_used = "LSTM" #"TCN" # "Regression", "Naive", "TCN", "DNN", "LSTM", "SARIMA"
 
 output_variable = ( 
     "Oslo"  # what are we forecasting
@@ -9,10 +10,10 @@ output_variable = (
 selected_colums = [ # columns used in TCN/ CNN models
     "Oslo",
     "Kr.sand",
-    "Tr.heim",
-    "Tromsø",
-    "Bergen",
-    "Month",
+    #"Tr.heim",
+    #"Tromsø",
+    #"Bergen",
+    #"Month",
     "Weekday",
 ] 
 
@@ -63,6 +64,8 @@ parameters = {
     ],  # activation functions for hidden layers, (can't be shorter than "hidden_layers")
     # linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
     "last_layer_activation": "linear",
+
+    #These are also used for LSTM-parameters
     "optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
     "loss": "mean_absolute_error",  # loss function in CNN, "mean_absolute_error", "mean_squared_error"
     "verbose": 1,  # 0,1 or 2, affects data feedback while training (no impact on result)
@@ -99,7 +102,30 @@ parameters = {
     "numpy_random_seed": 420,
 
     #visuals
-    "plt_style": "ggplot"
+    "plt_style": "ggplot",
+
+
+    #LSTM-parameters
+    "LSTM_output_units" : [32, 16, 32],
+    "LSTM_activation" : "tanh",
+    "LSTM_recurrent_activation" : "sigmoid",
+    "LSTM_dropout" : 0.0,
+    "LSTM_DNN_layers" : [32, 64, 32],
+    "LSTM_DNN_activation" : "relu",
+
+    #GRU-parameters
+    "GRU_output_units" : [32, 16, 32],
+    "GRU_activation" : "tanh",
+    "GRU_recurrent_activation" : "sigmoid",
+    "GRU_dropout" : 0.0,
+    "GRU_DNN_layers" : [32, 64, 32],
+    "GRU_DNN_activation" : "relu",
+
+    #SARIMA-parameters
+    "SARIMA_order" : (1, 0, 1),
+    "SARIMA_seasonal_order" : (0, 0, 0, 0)
+    
+
 
 }
 

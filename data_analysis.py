@@ -14,9 +14,8 @@ import matplotlib.dates as mdates
 from matplotlib.ticker import NullFormatter
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.stattools import adfuller
-from statsmodels.stats.diagnostic import acorr_breusch_godfrey
+from statsmodels.stats.diagnostic import acorr_ljungbox
 
-from data_processing import training_test_split
 
 plt.style.use("ggplot")
 
@@ -81,6 +80,7 @@ Marius & Jake Estimate:
     "Curve Demand", (884300.0)
 """
 
+training_test_split = 52584
 
 # retrieves data
 data_path = "data_erling/hourly_data_areas.csv"
@@ -91,31 +91,33 @@ date_list = (
     date_list.values.tolist()
 )  # list of all dates, can be used to get index from date, and vice versa
 
+daily_data = pd.read_csv('data_erling/external_data/all_data_daily.csv')
+
 # dataframe with only selected columns
 selected_colums = [
-    #"Date",
-    #"Hour",
+    "Date",
+    "Hour",
     "System Price",
     #"Month",
     #"Weekday",
     #"Season",
     #"Holiday",
-    "Oslo",
-    "Kr.sand",
-    "Tr.heim",
-    "Tromsø",
-    "Bergen",
-    "SE1",
-    "SE2",
-    "SE3",
-    "SE4",
-    "DK1",
-    "DK2",
-    "FI",
-    "Oil",
-    "Coal",
-    "Gas",
-    "Low Carbon",
+    #"Oslo",
+    #"Kr.sand",
+    #"Tr.heim",
+    #"Tromsø",
+    #"Bergen",
+    #"SE1",
+    #"SE2",
+    #"SE3",
+    #"SE4",
+    #"DK1",
+    #"DK2",
+    #"FI",
+    #"Oil",
+    #"Coal",
+    #"Gas",
+    #"Low Carbon",
     #"APX",
     #"OMEL",
     #"EEX",
@@ -401,6 +403,37 @@ def test_stationarity(data, cols=price_cols):
 def test_for_autocorrelation(data, cols=price_cols):
     cols = [x for x in cols if x in data.columns]
     for col in cols:
-        print(acorr_breusch_godfrey(data[col]))
+        print(acorr_ljungbox(data[col]))
 
-test_for_autocorrelation(training_data)
+#test_for_autocorrelation(training_data)
+
+def plot_hourly_price_vs_daily_price(hourly_data, daily_data, col="System Price", start_date=pd.to_datetime("2017-06-19", format='%Y-%m-%d'), end_date=pd.to_datetime("2017-06-25", format='%Y-%m-%d')):
+    hourly_data = hourly_data[["Date", "Hour", col]]
+    daily_data = daily_data[["Date", col]]
+    hourly_data["Date"] = pd.to_datetime(hourly_data['Date'], format='%Y-%m-%d')
+    daily_data["Date"] = pd.to_datetime(daily_data['Date'], format='%Y-%m-%d')
+
+    hourly_data = hourly_data.loc[hourly_data["Date"] >= start_date]
+    hourly_data = hourly_data.loc[hourly_data["Date"] <= end_date]
+    daily_data = daily_data.loc[daily_data["Date"] >= start_date]
+    daily_data = daily_data.loc[daily_data["Date"] <= end_date]
+
+    hourly_data["System Price Daily"] = 0.0
+    arr = hourly_data["System Price Daily"].to_numpy()
+    for h in range(len(hourly_data)):
+        for d in range(len(daily_data)):
+            if hourly_data["Date"].iloc[h] == daily_data["Date"].iloc[d]:
+                arr[h] = daily_data["System Price"].iloc[d]
+    hourly_data["System Price Daily"] = arr
+
+    for row in range(len(hourly_data)):
+        hourly_data['Date'].iloc[row] = hourly_data["Date"].iloc[row].replace(hour = int(hourly_data["Hour"].iloc[row]))
+                
+    plt.plot(hourly_data["Date"], hourly_data["System Price"], c='b')
+    plt.plot(daily_data["Date"], daily_data["System Price"], c='y', ls='--')
+    plt.show()
+
+plot_hourly_price_vs_daily_price(hourly_data, daily_data)
+
+
+

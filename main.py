@@ -45,6 +45,8 @@ from CNN import CNN
 
 from parameters import parameters  # here changes to be model are done!!
 
+from LSTM import LSTM_model
+
 # importing vars and funcs needed for regression and naive 
 from linear_regression import lin_reg_data, make_mlr, make_forecasts_regression
 from naive import naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients, make_forecasts_naive
@@ -72,8 +74,13 @@ def get_new_date(start_date,days_increment, min_1 = False):
     new_index = start_index + days_increment * 24 - min_1
     return date_hour_list[new_index]
 
-# creating TCN/ CNN model based on parameters
-model = CNN().initialize(parameters,input_length)
+
+if parameters["model_used"] != "LSTM":
+    # creating TCN/ CNN model based on parameters
+    model = CNN().initialize(parameters,input_length)
+else:
+    model = LSTM_model().initialize(parameters)
+
 
 history = model.fit(
     features=training_x,
@@ -128,6 +135,8 @@ def run_test(model_used,start_time):
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + regression_forecast
         else:
             forecasted_values = CNN_forecast
+    elif model_used=='LSTM':
+        forecasted_values = CNN_forecast
     else:
         print("NO MODEL SELECTED!! Change model_used varaible!")
 

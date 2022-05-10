@@ -116,8 +116,8 @@ class CNN:
     def save_model(self, path):
         self.model.save(path)
 
-    def load_model(self, path):
-        self.model = load_model(path)
+    #def load_model(self, path):
+    #    self.model = load_model(path)
 
 
 # history = self.model.fit(x=features, y=targets, batch_size = how many to fit at a time, epochs = 5, validation_split = 0.1,shuffle = True) # how to train
