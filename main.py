@@ -123,6 +123,8 @@ def run_test(model_used,start_time):
 
     forecasted_values = []
 
+    CNN_forecast = CNN_forecasts[test_start] #Had to remove this outside the if-else-structure, as the LSTM and GRU also access it
+
     if model_used == "Naive":
         forecasted_values = naive_forecast
     elif model_used == "Regression":
@@ -135,8 +137,10 @@ def run_test(model_used,start_time):
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + regression_forecast
         else:
             forecasted_values = CNN_forecast
-    elif model_used=='LSTM':
+    elif model_used=="LSTM" or model_used=="GRU":
         forecasted_values = CNN_forecast
+    elif model_used=="SARIMA":
+        pass
     else:
         print("NO MODEL SELECTED!! Change model_used varaible!")
 

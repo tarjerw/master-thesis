@@ -1,0 +1,105 @@
+{
+    "test_split": "2020-01-01-0",
+    "prediction_horizon": 8,
+    "output_variable": "Oslo",
+    "model_used": "LSTM",
+    "standardize_data": true,
+    "min_max_normalize_data": false,
+    "regression_poly": 2,
+    "enhanced_naive": true,
+    "selected_colums_regression": [
+        "System Price",
+        "Oslo",
+        "Kr.sand",
+        "Tr.heim",
+        "Troms\u00f8",
+        "Bergen",
+        "Holiday",
+        "Month",
+        "Weekday"
+    ],
+    "starting_cnn": "",
+    "training_length": 6,
+    "selected_colums": [
+        "Oslo",
+        "Kr.sand",
+        "Weekday"
+    ],
+    "base_model": "regression",
+    "epochs": 10,
+    "batch_size": 256,
+    "validation_split": 0.1,
+    "learning_rate": 0.02,
+    "hidden_layers": [
+        128,
+        64,
+        32
+    ],
+    "activation_functions": [
+        "relu",
+        "relu",
+        "relu"
+    ],
+    "last_layer_activation": "linear",
+    "optimizer": "Adam",
+    "loss": "mean_absolute_error",
+    "TCN_nb_filters": 32,
+    "TCN_kernel_size": 32,
+    "TCN_nb_stacks": 1,
+    "TCN_dilations": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+    ],
+    "TCN_padding": "causal",
+    "TCN_dropout_rate": 0.05,
+    "TCN_activiation": "relu",
+    "TCN_factor": 1.0,
+    "tenserflow_random_seed": 69,
+    "numpy_random_seed": 420,
+    "plt_style": "ggplot",
+    "LSTM_output_units": [
+        32,
+        16,
+        32
+    ],
+    "LSTM_return_sequences_last": false,
+    "LSTM_activation": "tanh",
+    "LSTM_recurrent_activation": "sigmoid",
+    "LSTM_dropout": 0.0,
+    "LSTM_DNN_layers": [
+        32,
+        64,
+        32
+    ],
+    "LSTM_DNN_activation": "relu",
+    "GRU_output_units": [
+        32,
+        16,
+        32
+    ],
+    "GRU_return_sequences_last": true,
+    "GRU_activation": "tanh",
+    "GRU_recurrent_activation": "sigmoid",
+    "GRU_dropout": 0.0,
+    "GRU_DNN_layers": [
+        32,
+        64,
+        32
+    ],
+    "GRU_DNN_activation": "relu",
+    "SARIMA_order": [
+        1,
+        0,
+        1
+    ],
+    "SARIMA_seasonal_order": [
+        0,
+        0,
+        0,
+        0
+    ]
+}

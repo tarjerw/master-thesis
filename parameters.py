@@ -1,7 +1,7 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "LSTM" #"TCN" # "Regression", "Naive", "TCN", "DNN", "LSTM", "SARIMA"
+model_used = "GRU" #"TCN" # "Regression", "Naive", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
 
 output_variable = ( 
     "Oslo"  # what are we forecasting
@@ -52,7 +52,7 @@ parameters = {
     "training_length": 6, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "regression", # base models used: "naive", "regression"
-    "epochs": 10,
+    "epochs": 100,
     "batch_size": 256,  # batch size
     "validation_split": 0.1,
     "learning_rate": 0.02,  # Learning rate the neural net
@@ -107,6 +107,7 @@ parameters = {
 
     #LSTM-parameters
     "LSTM_output_units" : [32, 16, 32],
+    "LSTM_return_sequences_last" : False,
     "LSTM_activation" : "tanh",
     "LSTM_recurrent_activation" : "sigmoid",
     "LSTM_dropout" : 0.0,
@@ -115,6 +116,7 @@ parameters = {
 
     #GRU-parameters
     "GRU_output_units" : [32, 16, 32],
+    "GRU_return_sequences_last" : True,
     "GRU_activation" : "tanh",
     "GRU_recurrent_activation" : "sigmoid",
     "GRU_dropout" : 0.0,
