@@ -11,8 +11,6 @@ import matplotlib as mpl
 import matplotlib.dates as mdates
 
 
-
-
 import datetime
 import json 
 import pickle
@@ -46,6 +44,8 @@ from CNN import CNN
 from parameters import parameters  # here changes to be model are done!!
 
 from LSTM import LSTM_model
+from GRU import GRU_model
+from sarima import SARIMA_model
 
 # importing vars and funcs needed for regression and naive 
 from linear_regression import lin_reg_data, make_mlr, make_forecasts_regression
@@ -60,7 +60,8 @@ from data_processing import (
     test_x,
     test_y,
     training_x,
-    training_y
+    training_y,
+    training_data_y #Needed for SARIMA
 )
 
 from tqdm import trange
@@ -75,14 +76,23 @@ def get_new_date(start_date,days_increment, min_1 = False):
     return date_hour_list[new_index]
 
 
-if parameters["model_used"] != "LSTM":
+if parameters["model_used"] not in ["LSTM", "GRU", "SARIMA"]:
     # creating TCN/ CNN model based on parameters
     model = CNN().initialize(parameters,input_length)
-else:
+elif parameters["model_used"] == "LSTM":
     model = LSTM_model().initialize(parameters)
+elif parameters["model_used"] == "GRU":
+    model = GRU_model().initialize(parameters)
+elif parameters["model_used"] == "SARIMA":
+    model = SARIMA_model().initialize(parameters)
+else:
+    print("Invalid model")
 
 
-history = model.fit(
+if parameters["model_used"] == "SARIMA":
+    history = model.fit(training_data_y)
+else:
+    history = model.fit(
     features=training_x,
     targets=training_y,
     batch_size=parameters["batch_size"],
@@ -90,7 +100,7 @@ history = model.fit(
     validation_split=parameters["validation_split"],
     shuffle=False,
     verbose=parameters["verbose"],
-)
+    )   
 
 
 training_test_split = date_hour_list.index(parameters["test_split"])
@@ -140,7 +150,7 @@ def run_test(model_used,start_time):
     elif model_used=="LSTM" or model_used=="GRU":
         forecasted_values = CNN_forecast
     elif model_used=="SARIMA":
-        pass
+        forecasted_values = CNN_forecast
     else:
         print("NO MODEL SELECTED!! Change model_used varaible!")
 
