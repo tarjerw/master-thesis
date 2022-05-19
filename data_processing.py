@@ -114,7 +114,6 @@ training_test_split = date_hour_list.index(parameters["test_split"])
 training_data = data_used[0:training_test_split] # 2014-01-01-0 - 2019-12-31-23 # 6 years
 test_data = data_used[training_test_split:] # 2020-01-01-0 - 2020-12-31-23 # 1 year , need to talk about COVID
 
-
 def find_pca_explained_variance(pca_obj):
     plt.plot(np.cumsum(pca_obj.explained_variance_ratio_))
     plt.show()

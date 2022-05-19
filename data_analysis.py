@@ -1,4 +1,5 @@
 import csv
+from sqlite3 import SQLITE_CREATE_TEMP_VIEW
 from numpy.lib.histograms import histogram
 import pandas as pd
 import datetime
@@ -98,22 +99,22 @@ selected_colums = [
     "Date",
     "Hour",
     "System Price",
-    #"Month",
-    #"Weekday",
+    "Month",
+    "Weekday",
     #"Season",
-    #"Holiday",
-    #"Oslo",
-    #"Kr.sand",
-    #"Tr.heim",
-    #"Tromsø",
-    #"Bergen",
-    #"SE1",
-    #"SE2",
-    #"SE3",
-    #"SE4",
-    #"DK1",
-    #"DK2",
-    #"FI",
+    "Holiday",
+    "Oslo",
+    "Kr.sand",
+    "Tr.heim",
+    "Tromsø",
+    "Bergen",
+    "SE1",
+    "SE2",
+    "SE3",
+    "SE4",
+    "DK1",
+    "DK2",
+    "FI",
     #"Oil",
     #"Coal",
     #"Gas",
@@ -280,7 +281,7 @@ def plot_large_system_price(training_data, selected_columns=['Date', 'Hour', 'Tr
 
 
 
-def plot_avg_deviations(data, price_col, deviation_col='Holiday', save_dict=True):
+def plot_avg_deviations(data, price_col, deviation_col='Month', save_dict=True, to_latex_print=True):
     #data = data[[price_col, deviation_col]]
     avg = data[price_col].mean()
     #print(avg)
@@ -288,7 +289,9 @@ def plot_avg_deviations(data, price_col, deviation_col='Holiday', save_dict=True
     #print(deviation_col_mean/avg) #Remove/add avg for monthly average price or coefficient
     coeff_df = deviation_col_mean/avg
     coeff_df = pd.DataFrame(coeff_df.iloc[1]/coeff_df.iloc[0])
-    print(coeff_df)
+    if to_latex_print:
+        deviation_col_mean = deviation_col_mean
+        print(deviation_col_mean.to_latex())
     if save_dict:
         coeff_dict = {}
         for row in coeff_df.index:
@@ -315,9 +318,9 @@ def plot_avg_deviations(data, price_col, deviation_col='Holiday', save_dict=True
     '''
 
 
-#dev_cols = ["Oslo", 'Kr.sand', 'Tr.heim', 'Tromsø','Bergen', 'SE1', 'SE2', 'SE3', 'SE4', 'DK1', 'DK2', 'FI'] #'Month', 'Weekday', 'Holiday'
+dev_cols = ['SE1', 'SE2', 'SE3', 'SE4', 'DK1', 'DK2', 'FI'] #'Month', 'Weekday', 'Holiday'
 
-#plot_avg_deviations(training_data[["Oslo", 'Kr.sand', 'Tr.heim', 'Tromsø','Bergen', 'SE1', 'SE2', 'SE3', 'SE4', 'DK1', 'DK2', 'FI', 'Holiday']], dev_cols)
+#plot_avg_deviations(training_data[['SE1', 'SE2', 'SE3', 'SE4', 'DK1', 'DK2', 'FI', 'Month']], dev_cols, save_dict=False)
 
 
 def calc_quantiles(data, selected_columns=["Oslo", 'Kr.sand', 'Tr.heim', 'Tromsø','Bergen'], q_range=[0.01, 0.05, 0.1, 0.15, 0.5, 0.85, 0.9, 0.95, 0.99]):
@@ -433,7 +436,24 @@ def plot_hourly_price_vs_daily_price(hourly_data, daily_data, col="System Price"
     plt.plot(daily_data["Date"], daily_data["System Price"], c='y', ls='--')
     plt.show()
 
-plot_hourly_price_vs_daily_price(hourly_data, daily_data)
+#plot_hourly_price_vs_daily_price(hourly_data, daily_data)
 
 
+def find_low_prices(data, threshold=1.0):
+    sum_above = 0.0
+    sum_below = 0.0
+    for col in data.columns:
+        n_above = len(data[col].loc[data[col] >= threshold])
+        n_below = len(data[col].loc[data[col] < threshold])
+        sum_above += n_above
+        sum_below += n_below
+        print(str(col))
+        print(str(n_below/(n_below + n_above)))
+        print('-------------------------')
+    print('TOTAL:')
+    print(str(sum_below/(sum_below + sum_above)))
+    print('-------------------------')
+    
 
+
+#find_low_prices(training_data)
