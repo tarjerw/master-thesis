@@ -116,12 +116,13 @@ class SARIMA_model:
     def predict(self, test_data):
         predictions = np.zeros((int(len(test_data)/24) - (self.look_back + self.prediction_horizon) , self.prediction_horizon)) #Shape on the form [days, pred_horizon]
         for i in range(len(predictions)):
-            pred = self.model.forecast(steps=self.prediction_horizon)
-            predictions[i, :] = pred
+            #for j in range(self.prediction_horizon):
+            pred_j = self.model.predict(start=1, end=self.prediction_horizon)
+            predictions[i, :] = pred_j
+            #predictions[i, :] = pred
             updated_variables = test_data[i*24: (i+1)*24] #extracting the next 24 variables - to be added as updated variables
             self.model = self.model.append(updated_variables, refit=True)
-        print(predictions.shape)
         return predictions
 
     def save_model(self, path):
-        self.model.save(str(path))
+        self.model.save(path)

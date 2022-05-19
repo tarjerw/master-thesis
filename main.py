@@ -224,7 +224,7 @@ def save_model(
     model, parameters
 ):  # used to save the anet model
     print("hey hey")
-    BASE_PATH = f"models/{datetime.datetime.now().strftime('%m.%d.%Y/%H.%M.%S')}"
+    BASE_PATH = f"/models/{datetime.datetime.now().strftime('%m.%d.%Y/%H.%M.%S')}"
     model.save_model(BASE_PATH)
     parameters.pop("metrics")
     parameters.pop("verbose")
@@ -232,7 +232,7 @@ def save_model(
     with open(f"{BASE_PATH}/parameters.json", "w") as file:
         json.dump(parameters, file, indent=4)
 
-save_model(model, parameters)
+#save_model(model, parameters)
 
 
 def visualize_date(model_used,date):
@@ -245,4 +245,4 @@ def visualize_date(model_used,date):
     plt.show()
 print(test_x.shape)
 print(test_y.shape)
-#visualize_date(parameters["model_used"],"2020-02-02-0")
+visualize_date(parameters["model_used"],"2020-02-02-0")
