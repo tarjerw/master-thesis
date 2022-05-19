@@ -61,7 +61,8 @@ from data_processing import (
     test_y,
     training_x,
     training_y,
-    training_data_y #Needed for SARIMA
+    training_data_y, #Needed for SARIMA
+    test_data
 )
 
 from tqdm import trange
@@ -76,6 +77,7 @@ def get_new_date(start_date,days_increment, min_1 = False):
     return date_hour_list[new_index]
 
 
+#initializing the chosen model
 if parameters["model_used"] not in ["LSTM", "GRU", "SARIMA"]:
     # creating TCN/ CNN model based on parameters
     model = CNN().initialize(parameters,input_length)
@@ -90,8 +92,8 @@ else:
 
 
 if parameters["model_used"] == "SARIMA":
-    history = model.fit(training_data_y)
-else:
+    model = model.fit(training_data_y)
+else: #history-variable will NOT work when using SARIMA
     history = model.fit(
     features=training_x,
     targets=training_y,
@@ -100,7 +102,7 @@ else:
     validation_split=parameters["validation_split"],
     shuffle=False,
     verbose=parameters["verbose"],
-    )   
+    ) 
 
 
 training_test_split = date_hour_list.index(parameters["test_split"])
@@ -110,7 +112,10 @@ mlr_models = []
 for i in range(1,parameters["prediction_horizon"] + 1): # develop mlr models for different day horizions 
     mlr_models.append(make_mlr(i,training_data_regression,parameters["output_variable"],parameters["regression_poly"]))
 
-CNN_forecasts = model.predict(test_x)
+if parameters["model_used"] == "SARIMA":
+    CNN_forecasts = model.predict(test_data[parameters["output_variable"]])
+else:
+    CNN_forecasts = model.predict(test_x)
 
 
 
@@ -123,7 +128,10 @@ def run_test(model_used,start_time):
     if start_time[-2:] != '-0':
         print("Error, test must start at hour 0, change start_time variable please")
         return
-   
+    
+    #print("------------------")
+    #print(test_y)
+    #print(test_start)
     actual = test_y[test_start]
     
     
