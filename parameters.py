@@ -1,7 +1,7 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "GRU" #"TCN" # "Regression", "Naive", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
+model_used = "SARIMA" #"TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
 
 output_variable = ( 
     "Oslo"  # what are we forecasting
@@ -10,11 +10,18 @@ output_variable = (
 selected_colums = [ # columns used in TCN/ CNN models
     "Oslo",
     "Kr.sand",
-    #"Tr.heim",
-    #"Tromsø",
-    #"Bergen",
+    "Tr.heim",
+    "Tromsø",
+    "Bergen",
+    "SE1",
+    "SE2",
+    "SE3",
+    "SE4",
+    "DK1",
+    "DK2",
+    "FI"
     #"Month",
-    "Weekday",
+    #"Weekday",
 ] 
 
 selected_colums_regression = [ # columns used in regression models 
@@ -24,7 +31,7 @@ selected_colums_regression = [ # columns used in regression models
     "Tr.heim",
     "Tromsø",
     "Bergen",
-   "Month",
+    "Month",
     "Weekday",
     "Holiday",
 ] 
@@ -52,7 +59,7 @@ parameters = {
     "training_length": 6, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "regression", # base models used: "naive", "regression"
-    "epochs": 100,
+    "epochs": 50,
     "batch_size": 256,  # batch size
     "validation_split": 0.1,
     "learning_rate": 0.02,  # Learning rate the neural net
@@ -124,10 +131,19 @@ parameters = {
     "GRU_DNN_activation" : "relu",
 
     #SARIMA-parameters
-    "SARIMA_order" : (1, 0, 1),
-    "SARIMA_seasonal_order" : (0, 0, 0, 0)
+    #Currently just foresats a single time series, can try to adapt to mutiple, but don't see the neccessity
+    "SARIMA_order" : (3, 0, 3),
+    "SARIMA_seasonal_order" : (4, 0, 4, 12),
+    "SARIMA_grid_search" : False,
+    "SARIMA_p_params" : [x for x in range(0, 4)],
+    "SARIMA_d_params" : [x for x in range(0, 2)],
+    "SARIMA_q_params" : [x for x in range(0, 4)],
+    "SARIMA_P_params" : [x for x in range(0, 4)],
+    "SARIMA_D_params" : [x for x in range(0, 2)],
+    "SARIMA_Q_params" : [x for x in range(0, 4)],
+    "SARIMA_m_params" : [x for x in range(4, 8)],
+    "SARIMA_threshold" : 300, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
     
-
 
 }
 
