@@ -147,16 +147,13 @@ def run_test(model_used,start_time):
         forecasted_values = naive_forecast
     elif model_used == "Regression":
         forecasted_values = regression_forecast
-    elif model_used == "TCN" or model_used =="DNN":
-        CNN_forecast = CNN_forecasts[test_start] 
+    elif model_used == "TCN" or model_used =="DNN" or model_used=="LSTM" or model_used=="GRU":
         if parameters["base_model"] == "naive":
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + naive_forecast
         elif parameters["base_model"] == "regression":
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + regression_forecast
         else:
             forecasted_values = CNN_forecast
-    elif model_used=="LSTM" or model_used=="GRU":
-        forecasted_values = CNN_forecast
     elif model_used=="SARIMA":
         forecasted_values = CNN_forecast
     else:
