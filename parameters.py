@@ -44,12 +44,12 @@ parameters = {
     "prediction_horizon": 8, # days forward to forecast, will get 24x forecasts
     "output_variable": output_variable,
     "model_used":model_used,
-    "standardize_data": True, # method of preprocessing 
+    "standardize_data": False, # method of preprocessing 
     "min_max_normalize_data": False, # method of preprocessing 
 
     #Base models (regression and naive) params:
     "regression_poly": 2, # what factor of polynomials in regression (1 = linear)
-    "enhanced_naive": True, # enhanced naive vs. naive 
+    "enhanced_naive": False, # enhanced naive vs. naive 
     "selected_colums_regression": selected_colums_regression,
 
 
@@ -132,8 +132,8 @@ parameters = {
 
     #SARIMA-parameters
     #Currently just foresats a single time series, can try to adapt to mutiple, but don't see the neccessity
-    "SARIMA_order" : (3, 0, 3),
-    "SARIMA_seasonal_order" : (4, 0, 4, 12),
+    "SARIMA_order" : (1, 1, 1),
+    "SARIMA_seasonal_order" : (0, 0, 0, 0),
     "SARIMA_grid_search" : False,
     "SARIMA_p_params" : [x for x in range(0, 4)],
     "SARIMA_d_params" : [x for x in range(0, 2)],
@@ -142,7 +142,7 @@ parameters = {
     "SARIMA_D_params" : [x for x in range(0, 2)],
     "SARIMA_Q_params" : [x for x in range(0, 4)],
     "SARIMA_m_params" : [x for x in range(4, 8)],
-    "SARIMA_threshold" : 300, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
+    "SARIMA_threshold" : 50, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
     
 
 }

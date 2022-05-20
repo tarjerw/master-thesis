@@ -122,16 +122,12 @@ else:
 def run_test(model_used,start_time):
     date_time_index = date_hour_list.index(start_time)
     test_start = int((date_time_index - parameters["training_length"] * 24 - date_hour_list.index(parameters["test_split"]))/24)
-    
     if test_start < 0:
         print("start_time not in test range")
     if start_time[-2:] != '-0':
         print("Error, test must start at hour 0, change start_time variable please")
         return
     
-    #print("------------------")
-    #print(test_y)
-    #print(test_start)
     actual = test_y[test_start]
     
     
@@ -147,7 +143,7 @@ def run_test(model_used,start_time):
         forecasted_values = naive_forecast
     elif model_used == "Regression":
         forecasted_values = regression_forecast
-    elif model_used == "TCN" or model_used =="DNN" or model_used=="LSTM" or model_used=="GRU":
+    elif model_used in  ["TCN", "DNN", "LSTM", "GRU"]:
         if parameters["base_model"] == "naive":
             forecasted_values = (CNN_forecast * parameters["TCN_factor"]) + naive_forecast
         elif parameters["base_model"] == "regression":
@@ -242,4 +238,4 @@ def visualize_date(model_used,date):
     plt.show()
 print(test_x.shape)
 print(test_y.shape)
-visualize_date(parameters["model_used"],"2020-02-02-0")
+visualize_date(parameters["model_used"],"2020-01-01-0")

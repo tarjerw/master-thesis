@@ -114,16 +114,17 @@ class SARIMA_model:
 
     #The variable test data is the hourly prices for the entire test period - in out case  - 1.1.2020 to 31.12.2020
     def predict(self, test_data):
-        
+        pre_data = test_data[ : self.look_back] #Extracting first part of the training period
+        self.model = self.model.append(pre_data, refit=True) #Refitting to the first part of the training period
         predictions = np.zeros((int((len(test_data) - (self.look_back + (self.prediction_horizon-24)))/24) ,self.prediction_horizon)) #Shape on the form [days, pred_horizon]
+        test_data_index = self.look_back #indexation of the hourly test data
         for i in range(len(predictions)):
             pred_j = self.model.predict(start=1, end=self.prediction_horizon)
-            predictions[i, :] = pred_j
-
-
-            updated_variables = test_data[i*24: (i+1)*24] #extracting the next 24 variables - to be added as updated variables
-            print(f"last! {test_data[(i+1)*24]}")
+            predictions[i, :] = pred_j #Filliung the predictions matrix
+            updated_variables = test_data.iloc[test_data_index: (test_data_index+24)] #extracting the next 24 variables - to be added as updated variables
+            print(f"last! {test_data.iloc[(test_data_index+24)]}")
             self.model = self.model.append(updated_variables, refit=True)
+            test_data_index += 24
         return predictions
 
     def save_model(self, path):
