@@ -65,7 +65,7 @@ class SARIMA_model:
         self.order = parameters["SARIMA_order"]
         self.seasonal_order = parameters["SARIMA_seasonal_order"]
         self.grid_search = parameters["SARIMA_grid_search"]
-        self.look_back = parameters["training_length"] #Days as input
+        self.look_back = parameters["training_length"] *24  #Days as input
         #if we are doing the grid search, we must store the lists from which we extract the values
         if parameters["SARIMA_grid_search"]:
             self.p_params = parameters["SARIMA_p_params"]
@@ -114,11 +114,15 @@ class SARIMA_model:
 
     #The variable test data is the hourly prices for the entire test period - in out case  - 1.1.2020 to 31.12.2020
     def predict(self, test_data):
-        predictions = np.zeros((int(len(test_data)/24) - (self.look_back + self.prediction_horizon) , self.prediction_horizon)) #Shape on the form [days, pred_horizon]
+        
+        predictions = np.zeros((int((len(test_data) - (self.look_back + (self.prediction_horizon-24)))/24) ,self.prediction_horizon)) #Shape on the form [days, pred_horizon]
         for i in range(len(predictions)):
             pred_j = self.model.predict(start=1, end=self.prediction_horizon)
             predictions[i, :] = pred_j
+
+
             updated_variables = test_data[i*24: (i+1)*24] #extracting the next 24 variables - to be added as updated variables
+            print(f"last! {test_data[(i+1)*24]}")
             self.model = self.model.append(updated_variables, refit=True)
         return predictions
 
