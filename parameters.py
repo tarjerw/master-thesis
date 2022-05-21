@@ -4,7 +4,18 @@ import tensorflow as tf
 model_used = "LSTM" #"TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
 
 output_variable = ( 
-    "Oslo"  # what are we forecasting
+    "Oslo",
+    #"Kr.sand",
+    #"Tr.heim",
+    #"Tromsø",
+    #"Bergen",
+    #"SE1",
+    #"SE2",
+    #"SE3",
+    #"SE4",
+    #"DK1",
+    #"DK2",
+    #"FI"
 )
 
 selected_colums = [ # columns used in TCN/ CNN models
@@ -56,7 +67,7 @@ parameters = {
     # params for CNN:
     # Path for continuing training (e.g "/Users/tarje/Desktop/Fordypningoppgvae/git/models/6/11.01.2021/13.39.29, "" for no pre-load)
     "starting_cnn": "",
-    "training_length": 6, # number of days in input variable
+    "training_length": 7, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "regression", # base models used: "naive", "regression"
     "epochs": 50,
@@ -144,7 +155,6 @@ parameters = {
     "SARIMA_m_params" : [x for x in range(4, 8)],
     "SARIMA_threshold" : 5000, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
     
-
 }
 
 """
