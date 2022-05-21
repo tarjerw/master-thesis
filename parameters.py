@@ -1,12 +1,12 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
+model_used = "Naive" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU", "Naive"
 
 output_variable = ( 
-    #"Oslo"
+    "Oslo"
     #"Kr.sand"
-    "Tr.heim"
+    #"Tr.heim"
     #"Tromsø"
     #"Bergen"
     #"SE1"
@@ -72,21 +72,21 @@ parameters = {
 
     #Base models (regression and naive) params:
     "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
-    "enhanced_naive": True, # enhanced naive vs. naive 
+    "enhanced_naive": False, # enhanced naive vs. naive 
     "selected_colums_regression": selected_colums_regression,
 
 
     # params for CNN:
     # Path for continuing training (e.g "/Users/tarje/Desktop/Fordypningoppgvae/git/models/6/11.01.2021/13.39.29, "" for no pre-load)
     "starting_cnn": "",
-    "training_length": 7, # number of days in input variable
+    "training_length": 14, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "naive", # base models used: "naive", "regression"
-    "epochs": 50,
+    "epochs": 1,
     "batch_size": 128,  # batch size
     "validation_split": 0.05,
-    "learning_rate": 0.02,  # Learning rate the neural net
-    "hidden_layers": [128, 64,64],  # Hidden layers for CNN
+    "learning_rate": 0.002,  # Learning rate the neural net
+    "hidden_layers": [256, 256, 256],  # Hidden layers for CNN
     "activation_functions": [
         "relu",
         "relu",
@@ -96,7 +96,7 @@ parameters = {
     "last_layer_activation": "linear",
 
     #These are also used for LSTM-parameters
-    "optimizer": "Adam",  # Adam, SGD, Adagrad, RMSprop
+    "optimizer": "SGD",  # Adam, SGD, Adagrad, RMSprop
     "loss": "mean_absolute_error",  # loss function in CNN, "mean_absolute_error", "mean_squared_error"
     "verbose": 1,  # 0,1 or 2, affects data feedback while training (no impact on result)
     "metrics": [
@@ -122,7 +122,7 @@ parameters = {
     "TCN_padding": "causal",  # causal prevents information leakage (keep as is)
     "TCN_dropout_rate": 0.0,  # can be used to reduce overfitting (0 or lower than 0.05)
     "TCN_activiation": "relu",  # leave to default (relu)
-    "TCN_factor": 0.5,  # factor multiplied with TCN effect on price
+    "TCN_factor": 0.3,  # factor multiplied with TCN effect on price
 
    
 
@@ -166,6 +166,7 @@ parameters = {
     #visuals
     "plt_style": "ggplot",
     
+    "extra_path": ""
 }
 
 """

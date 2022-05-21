@@ -92,7 +92,7 @@ elif parameters["model_used"] == "GRU":
 elif parameters["model_used"] == "SARIMA":
     model = SARIMA_model().initialize(parameters)
 else:
-    print("Invalid model")
+    print("Invalid model, or just Reg or Naive lol")
 
 
 if parameters["model_used"] == "SARIMA":
@@ -165,8 +165,7 @@ def run_test(model_used,start_time):
     for ind, element in enumerate(forecasted_values):
         error_list.append([element,actual[ind]])
 
-    print(start_time)
-    print(get_metrics(error_list))
+    
 
     return forecasted_values, actual, get_metrics(error_list), error_list
 
@@ -205,11 +204,12 @@ def run_complete_test(model_used, start_time, end_time = "none"):
             hour_error_list[i].append(element)
 
 
-    print(get_metrics(cummulative_error_list))
+    
     MAE_str = f"MAE; mean: {np.mean(MAE_list)}, median: {np.median(MAE_list)}, std: {np.std(MAE_list)}, min: {np.min(MAE_list)}, max: {np.max(MAE_list)}"
     SMAPE_str = f"SMAPE; mean: {np.mean(SMAPE_list)}, median: {np.median(SMAPE_list)}, std: {np.std(SMAPE_list)}, min: {np.min(SMAPE_list)}, max: {np.max(SMAPE_list)}"
     RMSE_str = f"RMSE; mean: {np.mean(RMSE_list)}, median: {np.median(RMSE_list)}, std: {np.std(RMSE_list)}, min: {np.min(RMSE_list)}, max: {np.max(RMSE_list)}"
-    MAPE_str = f"MAPE; mean: {np.mean(RMSE_list)}, median: {np.median(RMSE_list)}, std: {np.std(RMSE_list)}, min: {np.min(RMSE_list)}, max: {np.max(RMSE_list)}"
+    MAPE_str = f"MAPE; mean: {np.mean(MAPE_list)}, median: {np.median(MAPE_list)}, std: {np.std(MAPE_list)}, min: {np.min(MAPE_list)}, max: {np.max(MAPE_list)}"
+    print(f"MEAN ERROR METRICS HERE; MAE : {str(round(np.mean(MAE_list), 2))}, SMAPE : {str(round(np.mean(SMAPE_list), 2))}, RMSE : {str(round(np.mean(RMSE_list), 2))}, MAPE : {str(round(np.mean(MAPE_list), 2))} ")
 
     parameters["MAE"] = MAE_str
     parameters["SMAPE"] = SMAPE_str
@@ -221,11 +221,10 @@ def run_complete_test(model_used, start_time, end_time = "none"):
 def save_model(
     model,parameters, MAE_dict, RMSE_dict, MAPE_dict, SMAPE_dict, date_list
 ):  # used to save the anet model
-    print("hey hey")
     person = str(os.getlogin())
     if person == "root":
         person = str(os.getenv("USER"))
-    BASE_PATH = f"models/{person}/{parameters['output_variable']}_{parameters['model_used']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
+    BASE_PATH = f"models/{person}/{parameters['model_used']}{parameters['extra_path']}_{parameters['output_variable']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
     model.save_model(BASE_PATH)
     parameters.pop("metrics")
     parameters.pop("verbose")
@@ -261,9 +260,8 @@ def visualize_date(model_used,date):
     plt.legend(loc="upper left")
     plt.title(f"Forecast ({model_used}) vs. actual {date} - {get_new_date(date,parameters['prediction_horizon'],True)}")
     plt.show()
-print(test_x.shape)
-print(test_y.shape)
-visualize_date(parameters["model_used"],"2020-01-18-0")
+
+#visualize_date(parameters["model_used"],"2020-01-18-0")
 
 
 #HOW TO LOAD FROM JSON
