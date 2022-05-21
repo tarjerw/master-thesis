@@ -1,20 +1,20 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "LSTM" #"TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
+model_used = "TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
 
 output_variable = ( 
-    "Oslo"
-    #"Kr.sand",
-    #"Tr.heim",
-    #"Tromsø",
-    #"Bergen",
-    #"SE1",
-    #"SE2",
-    #"SE3",
-    #"SE4",
-    #"DK1",
-    #"DK2",
+    #"Oslo"
+    #"Kr.sand"
+    "Tr.heim"
+    #"Tromsø"
+    #"Bergen"
+    #"SE1"
+    #"SE2"
+    #"SE3"
+    #"SE4"
+    #"DK1"
+    #"DK2"
     #"FI"
 )
 
@@ -30,9 +30,21 @@ selected_colums = [ # columns used in TCN/ CNN models
     "SE4",
     "DK1",
     "DK2",
-    "FI"
-    #"Month",
-    #"Weekday",
+    "FI",
+
+    "Hour",
+    "Weekday",
+    "Holiday",
+
+    "Oil",
+    "Gas",
+    "Coal",
+    "System Price",
+    "Total Vol",
+    "Total Hydro",
+    "Wind Prod",
+    "T Nor",
+    "Prec Norway 7"
 ] 
 
 selected_colums_regression = [ # columns used in regression models 
@@ -52,15 +64,15 @@ parameters = {
 
     # from data processing (must also be changed there)
     "test_split": '2020-01-01-0',# first hour in test set, do not change
-    "prediction_horizon": 8, # days forward to forecast, will get 24x forecasts
+    "prediction_horizon": 7, # days forward to forecast, will get 24x forecasts
     "output_variable": output_variable,
     "model_used":model_used,
-    "standardize_data": False, # method of preprocessing 
+    "standardize_data": True, # method of preprocessing 
     "min_max_normalize_data": False, # method of preprocessing 
 
     #Base models (regression and naive) params:
     "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
-    "enhanced_naive": False, # enhanced naive vs. naive 
+    "enhanced_naive": True, # enhanced naive vs. naive 
     "selected_colums_regression": selected_colums_regression,
 
 
@@ -69,12 +81,12 @@ parameters = {
     "starting_cnn": "",
     "training_length": 7, # number of days in input variable
     "selected_colums": selected_colums,
-    "base_model": "regression", # base models used: "naive", "regression"
-    "epochs": 5,
-    "batch_size": 256,  # batch size
-    "validation_split": 0.1,
+    "base_model": "naive", # base models used: "naive", "regression"
+    "epochs": 50,
+    "batch_size": 128,  # batch size
+    "validation_split": 0.05,
     "learning_rate": 0.02,  # Learning rate the neural net
-    "hidden_layers": [128, 64,32],  # Hidden layers for CNN
+    "hidden_layers": [128, 64,64],  # Hidden layers for CNN
     "activation_functions": [
         "relu",
         "relu",
@@ -108,37 +120,29 @@ parameters = {
         32,
     ),  # It controls how deep your TCN layer is. Usually, consider a list with multiple of two
     "TCN_padding": "causal",  # causal prevents information leakage (keep as is)
-    "TCN_dropout_rate": 0.05,  # can be used to reduce overfitting (0 or lower than 0.05)
+    "TCN_dropout_rate": 0.0,  # can be used to reduce overfitting (0 or lower than 0.05)
     "TCN_activiation": "relu",  # leave to default (relu)
-    "TCN_factor": 1.00,  # factor multiplied with TCN effect on price
+    "TCN_factor": 0.5,  # factor multiplied with TCN effect on price
 
-    #LSTM parameters:
-    
-
-    # setting random seed
-    "tenserflow_random_seed": 69,
-    "numpy_random_seed": 420,
-
-    #visuals
-    "plt_style": "ggplot",
+   
 
 
     #LSTM-parameters
-    "LSTM_output_units" : [32, 16, 32],
+    "LSTM_output_units" : [128],
     "LSTM_return_sequences_last" : False,
     "LSTM_activation" : "tanh",
     "LSTM_recurrent_activation" : "sigmoid",
     "LSTM_dropout" : 0.0,
-    "LSTM_DNN_layers" : [32, 64, 32],
+    "LSTM_DNN_layers" : [128, 64, 64],
     "LSTM_DNN_activation" : "relu",
 
     #GRU-parameters
-    "GRU_output_units" : [32, 16, 32],
+    "GRU_output_units" : [128],
     "GRU_return_sequences_last" : True,
     "GRU_activation" : "tanh",
     "GRU_recurrent_activation" : "sigmoid",
     "GRU_dropout" : 0.0,
-    "GRU_DNN_layers" : [32, 64, 32],
+    "GRU_DNN_layers" : [128, 64, 64],
     "GRU_DNN_activation" : "relu",
 
     #SARIMA-parameters
@@ -154,6 +158,13 @@ parameters = {
     "SARIMA_Q_params" : [x for x in range(0, 4)],
     "SARIMA_m_params" : [x for x in range(4, 8)],
     "SARIMA_threshold" : 5000, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
+    
+    # setting random seed
+    "tenserflow_random_seed": 69,
+    "numpy_random_seed": 420,
+
+    #visuals
+    "plt_style": "ggplot",
     
 }
 
