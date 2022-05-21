@@ -51,6 +51,7 @@ from sarima_2 import SARIMA_model
 from linear_regression import lin_reg_data, make_mlr, make_forecasts_regression
 from naive import naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients, make_forecasts_naive
 
+import os
 
 from error_metrics import MAE_error, MAPE_error, RMSE_error, SMAPE_error, get_metrics
 
@@ -66,6 +67,7 @@ from data_processing import (
 )
 
 from tqdm import trange
+
 
 
 
@@ -220,7 +222,10 @@ def save_model(
     model,parameters, MAE_dict, RMSE_dict, MAPE_dict, SMAPE_dict, date_list
 ):  # used to save the anet model
     print("hey hey")
-    BASE_PATH = f"models/{parameters['output_variable']}_{parameters['model_used']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
+    person = str(os.getlogin())
+    if person == "root":
+        person = str(os.getenv("USER"))
+    BASE_PATH = f"models/{person}/{parameters['output_variable']}_{parameters['model_used']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
     model.save_model(BASE_PATH)
     parameters.pop("metrics")
     parameters.pop("verbose")
