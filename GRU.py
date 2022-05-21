@@ -1,6 +1,7 @@
 #Thinking about mmaking an GRU model for 
 from keras.models import Sequential
 from keras.layers import Dense, GRU, Flatten
+import tensorflow.keras.optimizers as optimizers
 
 
 class GRU_model:
@@ -38,9 +39,15 @@ class GRU_model:
         
         self.model.add(Dense(parameters["prediction_horizon"]*24))
 
-        self.model.compile(loss=parameters["loss"],
-        metrics=parameters["metrics"],
-        optimizer=parameters["optimizer"])
+        selected_optimizer = getattr(optimizers, parameters["optimizer"])(
+            learning_rate=parameters["learning_rate"]
+        )
+
+        self.model.compile(
+            loss=parameters["loss"],
+            optimizer=selected_optimizer,
+            metrics=parameters["metrics"],
+        )
 
         #self.model.summary()
 
