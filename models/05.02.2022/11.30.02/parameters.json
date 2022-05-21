@@ -1,0 +1,66 @@
+{
+    "test_split": "2020-01-01-0",
+    "prediction_horizon": 8,
+    "output_variable": "Oslo",
+    "model_used": "TCN",
+    "standardize_data": true,
+    "min_max_normalize_data": false,
+    "regression_poly": 2,
+    "enhanced_naive": true,
+    "selected_colums_regression": [
+        "System Price",
+        "Oslo",
+        "Kr.sand",
+        "Tr.heim",
+        "Troms\u00f8",
+        "Bergen",
+        "Holiday",
+        "Month",
+        "Weekday"
+    ],
+    "starting_cnn": "",
+    "training_length": 3,
+    "selected_colums": [
+        "Oslo",
+        "Kr.sand",
+        "Tr.heim",
+        "Troms\u00f8",
+        "Bergen",
+        "Month",
+        "Weekday"
+    ],
+    "base_model": "regression",
+    "epochs": 10,
+    "batch_size": 256,
+    "validation_split": 0.1,
+    "learning_rate": 2e-07,
+    "hidden_layers": [
+        64,
+        32,
+        16
+    ],
+    "activation_functions": [
+        "relu",
+        "relu",
+        "relu"
+    ],
+    "last_layer_activation": "linear",
+    "optimizer": "SGD",
+    "loss": "mean_absolute_error",
+    "TCN_nb_filters": 32,
+    "TCN_kernel_size": 16,
+    "TCN_nb_stacks": 1,
+    "TCN_dilations": [
+        1,
+        2,
+        4,
+        8
+    ],
+    "TCN_padding": "causal",
+    "TCN_dropout_rate": 0.0,
+    "TCN_activiation": "relu",
+    "TCN_factor": 1.0,
+    "tenserflow_random_seed": 69,
+    "numpy_random_seed": 420,
+    "plt_style": "ggplot"
+}

@@ -12,11 +12,15 @@ def MAE_error(data):  # good
 def MAPE_error(data):  # good
 
     output_sum = 0
-    for x in data:
-        devi = np.abs(x[1] - x[0]) / x[1]
-        output_sum += devi
+    observations = 0
 
-    return 100 * (output_sum / len(data))
+    for x in data:
+        if x[1] >= 1:
+            devi = np.abs(x[1] - x[0]) / x[1]
+            output_sum += devi
+            observations += 1
+
+    return 100 * (output_sum / observations)
 
 
 def RMSE_error(data):
@@ -30,11 +34,14 @@ def RMSE_error(data):
 
 def SMAPE_error(data):
     output_sum = 0
+    observations = 0
     for x in data:
-        top = np.abs(x[1] - x[0])
-        bottom = (np.abs(x[1]) + np.abs(x[0])) / 2
-        output_sum += top / bottom
-    return 100 * (output_sum / len(data))
+        if x[1] >= 1:
+            top = np.abs(x[1] - x[0])
+            bottom = (np.abs(x[1]) + np.abs(x[0])) / 2
+            output_sum += top / bottom
+            observations += 1
+    return 100 * (output_sum / observations)
 
 
 def get_metrics(test_list):
