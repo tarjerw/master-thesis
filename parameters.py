@@ -4,7 +4,7 @@ import tensorflow as tf
 model_used = "LSTM" #"TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
 
 output_variable = ( 
-    "Oslo",
+    "Oslo"
     #"Kr.sand",
     #"Tr.heim",
     #"Tromsø",
@@ -39,11 +39,11 @@ selected_colums_regression = [ # columns used in regression models
     "System Price",
     "Oslo",
     "Kr.sand",
-    "Tr.heim",
-    "Tromsø",
-    "Bergen",
-    "Month",
-    "Weekday",
+    #"Tr.heim",
+    #"Tromsø",
+    #"Bergen",
+    #"Month",
+    #"Weekday",
     "Holiday",
 ] 
 
@@ -59,7 +59,7 @@ parameters = {
     "min_max_normalize_data": False, # method of preprocessing 
 
     #Base models (regression and naive) params:
-    "regression_poly": 2, # what factor of polynomials in regression (1 = linear)
+    "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
     "enhanced_naive": False, # enhanced naive vs. naive 
     "selected_colums_regression": selected_colums_regression,
 
@@ -70,7 +70,7 @@ parameters = {
     "training_length": 7, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "regression", # base models used: "naive", "regression"
-    "epochs": 50,
+    "epochs": 5,
     "batch_size": 256,  # batch size
     "validation_split": 0.1,
     "learning_rate": 0.02,  # Learning rate the neural net

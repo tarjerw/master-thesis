@@ -47,7 +47,7 @@ def SMAPE_error(data):
 def get_metrics(test_list):
     metrics = {
         "MAE": MAE_error(test_list),
-        #"MAPE": MAPE_error(test_list), due to close to zero value giving inf 
+        "MAPE": MAPE_error(test_list), 
         "RMSE": RMSE_error(test_list),
         "SMAPE": SMAPE_error(test_list),
     }

@@ -1,0 +1,153 @@
+{
+    "test_split": "2020-01-01-0",
+    "prediction_horizon": 8,
+    "output_variable": "Oslo",
+    "model_used": "LSTM",
+    "standardize_data": false,
+    "min_max_normalize_data": false,
+    "regression_poly": 1,
+    "enhanced_naive": false,
+    "selected_colums_regression": [
+        "System Price",
+        "Oslo",
+        "Kr.sand",
+        "Holiday"
+    ],
+    "starting_cnn": "",
+    "training_length": 7,
+    "selected_colums": [
+        "Oslo",
+        "Kr.sand",
+        "Tr.heim",
+        "Troms\u00f8",
+        "Bergen",
+        "SE1",
+        "SE2",
+        "SE3",
+        "SE4",
+        "DK1",
+        "DK2",
+        "FI"
+    ],
+    "base_model": "regression",
+    "epochs": 5,
+    "batch_size": 256,
+    "validation_split": 0.1,
+    "learning_rate": 0.02,
+    "hidden_layers": [
+        128,
+        64,
+        32
+    ],
+    "activation_functions": [
+        "relu",
+        "relu",
+        "relu"
+    ],
+    "last_layer_activation": "linear",
+    "optimizer": "Adam",
+    "loss": "mean_absolute_error",
+    "TCN_nb_filters": 32,
+    "TCN_kernel_size": 32,
+    "TCN_nb_stacks": 1,
+    "TCN_dilations": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+    ],
+    "TCN_padding": "causal",
+    "TCN_dropout_rate": 0.05,
+    "TCN_activiation": "relu",
+    "TCN_factor": 1.0,
+    "tenserflow_random_seed": 69,
+    "numpy_random_seed": 420,
+    "plt_style": "ggplot",
+    "LSTM_output_units": [
+        32,
+        16,
+        32
+    ],
+    "LSTM_return_sequences_last": false,
+    "LSTM_activation": "tanh",
+    "LSTM_recurrent_activation": "sigmoid",
+    "LSTM_dropout": 0.0,
+    "LSTM_DNN_layers": [
+        32,
+        64,
+        32
+    ],
+    "LSTM_DNN_activation": "relu",
+    "GRU_output_units": [
+        32,
+        16,
+        32
+    ],
+    "GRU_return_sequences_last": true,
+    "GRU_activation": "tanh",
+    "GRU_recurrent_activation": "sigmoid",
+    "GRU_dropout": 0.0,
+    "GRU_DNN_layers": [
+        32,
+        64,
+        32
+    ],
+    "GRU_DNN_activation": "relu",
+    "SARIMA_order": [
+        2,
+        0,
+        1
+    ],
+    "SARIMA_seasonal_order": [
+        1,
+        1,
+        1,
+        24
+    ],
+    "SARIMA_grid_search": false,
+    "SARIMA_p_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_d_params": [
+        0,
+        1
+    ],
+    "SARIMA_q_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_P_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_D_params": [
+        0,
+        1
+    ],
+    "SARIMA_Q_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_m_params": [
+        4,
+        5,
+        6,
+        7
+    ],
+    "SARIMA_threshold": 5000,
+    "MAE": "MAE; mean: 3.693898593901549, median: 3.1712672859917697, std: 1.8207296533756938, min: 0.5745549670486692, max: 17.389659619263856",
+    "SMAPE": "SMAPE; mean: 53.092399673669654, median: 42.46742991960157, std: 33.21362293542865, min: 5.837151424845549, max: 124.44227025746144",
+    "RMSE": "RMSE; mean: 4.471041271380068, median: 3.439163046859312, std: 3.0768580115571003, min: 0.7272862962487361, max: 30.10581544888668",
+    "MAPE": "MAPE; mean: 4.471041271380068, median: 3.439163046859312, std: 3.0768580115571003, min: 0.7272862962487361, max: 30.10581544888668"
+}

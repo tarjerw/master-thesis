@@ -67,6 +67,8 @@ from data_processing import (
 
 from tqdm import trange
 
+
+
 # setting random seed for numpy and tensorflow XD
 seed(parameters["numpy_random_seed"])
 tf.random.set_seed(parameters["tenserflow_random_seed"])
@@ -176,6 +178,8 @@ def run_complete_test(model_used, start_time, end_time = "none"):
     MAE_list = []
     RMSE_list = []
     SMAPE_list = []
+    MAPE_list = []
+    date_list = []
 
     for i in range(steps):
         if date == end_time:
@@ -186,6 +190,8 @@ def run_complete_test(model_used, start_time, end_time = "none"):
         MAE_list.append(error_metrics["MAE"])
         SMAPE_list.append(error_metrics["SMAPE"])
         RMSE_list.append(error_metrics["RMSE"])
+        MAPE_list.append(error_metrics["MAPE"])
+        date_list.append(date)
         cummulative_error_list.extend(error_list)
          
     hour_error_list = [[]]
@@ -195,29 +201,26 @@ def run_complete_test(model_used, start_time, end_time = "none"):
             hour_error_list.append([element])
         else:
             hour_error_list[i].append(element)
-    hour_error_MAE = [MAE_error(hour) for hour in hour_error_list]
-    hour_error_SMAPE = [MAE_error(hour) for hour in hour_error_list]
-    hour_error_RMSE = [MAE_error(hour) for hour in hour_error_list]
-    print(f"hour error MAE: {hour_error_MAE}")
-    print(f"hour error SMAPE: {hour_error_SMAPE}")
-    print(f"hour error RMSE: {hour_error_RMSE}")
+
 
     print(get_metrics(cummulative_error_list))
-    print(f"MAE; mean: {np.mean(MAE_list)}, median: {np.median(MAE_list)}, std: {np.std(MAE_list)}, min: {np.min(MAE_list)}, max: {np.max(MAE_list)}")
-    print(f"SMAPE; mean: {np.mean(SMAPE_list)}, median: {np.median(SMAPE_list)}, std: {np.std(SMAPE_list)}, min: {np.min(SMAPE_list)}, max: {np.max(SMAPE_list)}")
-    print(f"RMSE; mean: {np.mean(RMSE_list)}, median: {np.median(RMSE_list)}, std: {np.std(RMSE_list)}, min: {np.min(RMSE_list)}, max: {np.max(RMSE_list)}")
-   
-    return forecast_dict
+    MAE_str = f"MAE; mean: {np.mean(MAE_list)}, median: {np.median(MAE_list)}, std: {np.std(MAE_list)}, min: {np.min(MAE_list)}, max: {np.max(MAE_list)}"
+    SMAPE_str = f"SMAPE; mean: {np.mean(SMAPE_list)}, median: {np.median(SMAPE_list)}, std: {np.std(SMAPE_list)}, min: {np.min(SMAPE_list)}, max: {np.max(SMAPE_list)}"
+    RMSE_str = f"RMSE; mean: {np.mean(RMSE_list)}, median: {np.median(RMSE_list)}, std: {np.std(RMSE_list)}, min: {np.min(RMSE_list)}, max: {np.max(RMSE_list)}"
+    MAPE_str = f"MAPE; mean: {np.mean(RMSE_list)}, median: {np.median(RMSE_list)}, std: {np.std(RMSE_list)}, min: {np.min(RMSE_list)}, max: {np.max(RMSE_list)}"
 
+    parameters["MAE"] = MAE_str
+    parameters["SMAPE"] = SMAPE_str
+    parameters["RMSE"] = RMSE_str
+    parameters["MAPE"] = MAPE_str
+    return forecast_dict, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list
 
-
-run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
 
 def save_model(
-    model, parameters
+    model,parameters, MAE_dict, RMSE_dict, MAPE_dict, SMAPE_dict, date_list
 ):  # used to save the anet model
     print("hey hey")
-    BASE_PATH = f"/models/{datetime.datetime.now().strftime('%m.%d.%Y/%H.%M.%S')}"
+    BASE_PATH = f"models/{parameters['output_variable']}_{parameters['model_used']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
     model.save_model(BASE_PATH)
     parameters.pop("metrics")
     parameters.pop("verbose")
@@ -225,7 +228,24 @@ def save_model(
     with open(f"{BASE_PATH}/parameters.json", "w") as file:
         json.dump(parameters, file, indent=4)
 
-#save_model(model, parameters)
+    with open(f"{BASE_PATH}/MAE_list.json", "wb") as fp:  # Pickling
+        pickle.dump(MAE_dict, fp)
+
+    with open(f"{BASE_PATH}/RMSE_list.json", "wb") as fp:  # Pickling
+        pickle.dump(RMSE_dict, fp)
+
+    with open(f"{BASE_PATH}/MAPE_list.json", "wb") as fp:  # Pickling
+        pickle.dump(MAPE_dict, fp)
+
+    with open(f"{BASE_PATH}/SMAPE_list.json", "wb") as fp:  # Pickling
+        pickle.dump(SMAPE_dict, fp)
+
+    with open(f"{BASE_PATH}/Date_list.json", "wb") as fp:  # Pickling
+        pickle.dump(date_list, fp)
+
+    
+forecast_dict, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list = run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
+save_model(model,parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list)
 
 
 def visualize_date(model_used,date):
@@ -239,3 +259,10 @@ def visualize_date(model_used,date):
 print(test_x.shape)
 print(test_y.shape)
 visualize_date(parameters["model_used"],"2020-01-18-0")
+
+
+#HOW TO LOAD FROM JSON
+#open_file = open("models/Oslo_LSTM_05.21.2022.13.59.05/RMSE_list.json", "rb")
+#loaded_list = pickle.load(open_file)
+#open_file.close()
+#print(loaded_list)

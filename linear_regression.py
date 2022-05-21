@@ -106,6 +106,7 @@ def make_mlr(days, training_data_regression, output_variable, poly):
     y = training_data_regression[output_variable][24*days:] 
 
     polynomial_features= PolynomialFeatures(degree=poly)
+
     x = polynomial_features.fit_transform(x)
 
     mlr = LinearRegression()  
