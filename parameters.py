@@ -1,7 +1,7 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "SARIMA" #"TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
+model_used = "LSTM" #"TCN" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU"
 
 output_variable = ( 
     "Oslo"  # what are we forecasting
@@ -132,8 +132,8 @@ parameters = {
 
     #SARIMA-parameters
     #Currently just foresats a single time series, can try to adapt to mutiple, but don't see the neccessity
-    "SARIMA_order" : (1, 1, 1),
-    "SARIMA_seasonal_order" : (0, 0, 0, 0),
+    "SARIMA_order" : (2, 0, 1),
+    "SARIMA_seasonal_order" : (1, 1, 1, 24),
     "SARIMA_grid_search" : False,
     "SARIMA_p_params" : [x for x in range(0, 4)],
     "SARIMA_d_params" : [x for x in range(0, 2)],
@@ -142,7 +142,7 @@ parameters = {
     "SARIMA_D_params" : [x for x in range(0, 2)],
     "SARIMA_Q_params" : [x for x in range(0, 4)],
     "SARIMA_m_params" : [x for x in range(4, 8)],
-    "SARIMA_threshold" : 50, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
+    "SARIMA_threshold" : 5000, #Variable to make sure there is not too much input data - cannot optimize on 50 000+inputs
     
 
 }

@@ -3,7 +3,7 @@ from cgi import test
 from cmath import inf
 from random import triangular
 from socketserver import ThreadingUnixDatagramServer
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.tsa.arima.model import ARIMA
 import numpy as np
 from error_metrics import MAE_error
 import math
@@ -43,7 +43,7 @@ def grid_search_params(sarima_obj, training_data):
                                 '''
                                 order_temp = (p_actual, q_actual, d_actual)
                                 seasonal_order_temp = (P, Q, D, m)
-                                temp_mod = SARIMAX(training_data, order=order_temp, seasonal_order=seasonal_order_temp, enforce_stationarity=False) #enforce stationarity to avoid LU decomposition Error
+                                temp_mod = ARIMA(training_data, order=order_temp, seasonal_order=seasonal_order_temp, enforce_stationarity=False) #enforce stationarity to avoid LU decomposition Error
                                 score = eval_model_for_grid_search(temp_mod)
                                 candidate_model_params[score] = (order_temp, seasonal_order_temp)
     top_score = min([x for x in candidate_model_params.keys() if (x != None and not math.isnan(x))])
@@ -90,7 +90,7 @@ class SARIMA_model:
     def fit(self, features):        #, targets, batch_size, epochs, validation_split, shuffle, verbose):
         self.training_data = features[-(self.thershold + self.prediction_horizon): ]
         if self.parameters_selected:
-            self.model = SARIMAX(self.training_data, order=self.order, seasonal_order=self.seasonal_order)
+            self.model = ARIMA(self.training_data, order=self.order, seasonal_order=self.seasonal_order)
             self.model =  self.model.fit()
             ret = self
         else:
@@ -100,12 +100,12 @@ class SARIMA_model:
                 order, seasonal_order = grid_search_params(self, training_data)
                 self.order = order
                 self.seasonal_order = seasonal_order
-                self.model = SARIMAX(training_data, order=self.order, seasonal_order=self.seasonal_order, enforce_stationarity=False)
+                self.model = ARIMA(training_data, order=self.order, seasonal_order=self.seasonal_order, enforce_stationarity=False)
                 self.model = self.model.fit()
                 ret = self
                 self.parameters_selected = True
             else:
-                self.model = SARIMAX(training_data, order=self.order, seasonal_order=self.seasonal_order, enforce_stationarity=False)
+                self.model = ARIMA(training_data, order=self.order, seasonal_order=self.seasonal_order, enforce_stationarity=False)
                 self.model = self.model.fit()
                 ret = self
                 self.parameters_selected = True
@@ -120,18 +120,21 @@ class SARIMA_model:
         test_data_index = self.look_back
         predict_start = len(self.training_data) + self.look_back                                                #indexation of the hourly test data
         for i in range(len(predictions)-300):
-            pred_j = self.model.predict(start=predict_start+1, end=(predict_start+self.prediction_horizon))
+            #pred_j = self.model.predict(start=predict_start+1, end=(predict_start+self.prediction_horizon))
+            pred_j = self.model.forecast(steps=self.prediction_horizon)
             print(pred_j.shape)
             print(pred_j)
             print("---------------")
             predictions[i, :] = pred_j                                                  #Filliung the predictions matrix
             updated_variables = test_data.iloc[test_data_index: (test_data_index+24)]   #extracting the next 24 variables - to be added as updated variables
-            self.training_data = np.append(self.training_data, updated_variables)
+            #self.training_data = np.append(self.training_data, updated_variables)
             print(f"last! {test_data.iloc[(test_data_index+24)]}")
-            self.model = SARIMAX(self.training_data, order=self.order, seasonal_order=self.seasonal_order)
-            self.model = self.model.fit()
+            #self.model = ARIMA(self.training_data, order=self.order, seasonal_order=self.seasonal_order)
+            self.model = self.model.append(updated_variables, refit=True)
+            #self.model = self.model.fit()
             test_data_index += 24
             predict_start += 24
+            print(i)
         return predictions
 
     def save_model(self, path):

@@ -45,7 +45,7 @@ from parameters import parameters  # here changes to be model are done!!
 
 from LSTM import LSTM_model
 from GRU import GRU_model
-from sarima import SARIMA_model
+from sarima_2 import SARIMA_model
 
 # importing vars and funcs needed for regression and naive 
 from linear_regression import lin_reg_data, make_mlr, make_forecasts_regression
@@ -238,4 +238,4 @@ def visualize_date(model_used,date):
     plt.show()
 print(test_x.shape)
 print(test_y.shape)
-visualize_date(parameters["model_used"],"2020-01-01-0")
+visualize_date(parameters["model_used"],"2020-01-18-0")

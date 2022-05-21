@@ -290,7 +290,7 @@ def plot_avg_deviations(data, price_col, deviation_col='Month', save_dict=True, 
     coeff_df = deviation_col_mean/avg
     coeff_df = pd.DataFrame(coeff_df.iloc[1]/coeff_df.iloc[0])
     if to_latex_print:
-        deviation_col_mean = deviation_col_mean
+        deviation_col_mean = deviation_col_mean/avg
         print(deviation_col_mean.to_latex())
     if save_dict:
         coeff_dict = {}
@@ -318,9 +318,18 @@ def plot_avg_deviations(data, price_col, deviation_col='Month', save_dict=True, 
     '''
 
 
-dev_cols = ['SE1', 'SE2', 'SE3', 'SE4', 'DK1', 'DK2', 'FI'] #'Month', 'Weekday', 'Holiday'
+dev_cols = ["Oslo",
+            "Kr.sand",
+            "Tr.heim",
+            "Tromsø",
+            "Bergen"] #'Month', 'Weekday', 'Holiday'
 
-#plot_avg_deviations(training_data[['SE1', 'SE2', 'SE3', 'SE4', 'DK1', 'DK2', 'FI', 'Month']], dev_cols, save_dict=False)
+plot_avg_deviations(training_data[["Oslo",
+                                    "Kr.sand",
+                                    "Tr.heim",
+                                    "Tromsø",
+                                    "Bergen",
+                                    'Month']], dev_cols, save_dict=False)
 
 
 def calc_quantiles(data, selected_columns=["Oslo", 'Kr.sand', 'Tr.heim', 'Tromsø','Bergen'], q_range=[0.01, 0.05, 0.1, 0.15, 0.5, 0.85, 0.9, 0.95, 0.99]):
