@@ -61,6 +61,7 @@ class LSTM_model:
             shuffle=shuffle,
             verbose=verbose,
         )
+        print(self.model.summary())
 
         # loss = ret.history.get("loss", [None])
         # mae = ret.history.get("MAE", [None])

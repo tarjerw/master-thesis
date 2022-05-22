@@ -119,12 +119,12 @@ class SARIMA_model:
         predictions = np.zeros((int((len(test_data) - (self.look_back + (self.prediction_horizon-24)))/24) ,self.prediction_horizon)) #Shape on the form [days, pred_horizon]
         test_data_index = self.look_back
         predict_start = len(self.training_data) + self.look_back                                                #indexation of the hourly test data
-        for i in range(len(predictions)-300):
+        for i in range(len(predictions)):
             #pred_j = self.model.predict(start=predict_start+1, end=(predict_start+self.prediction_horizon))
             pred_j = self.model.forecast(steps=self.prediction_horizon)
-            print(pred_j.shape)
-            print(pred_j)
-            print("---------------")
+            #print(pred_j.shape)
+            #print(pred_j)
+            #print("---------------")
             predictions[i, :] = pred_j                                                  #Filliung the predictions matrix
             updated_variables = test_data.iloc[test_data_index: (test_data_index+24)]   #extracting the next 24 variables - to be added as updated variables
             #self.training_data = np.append(self.training_data, updated_variables)

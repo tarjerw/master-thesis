@@ -49,7 +49,6 @@ class GRU_model:
             metrics=parameters["metrics"],
         )
 
-        #self.model.summary()
 
         return self
 
@@ -70,6 +69,7 @@ class GRU_model:
             shuffle=shuffle,
             verbose=verbose,
         )
+        print(self.model.summary())
 
         # loss = ret.history.get("loss", [None])
         # mae = ret.history.get("MAE", [None])
