@@ -138,7 +138,8 @@ def run_test(model_used,start_time):
 
     regression_forecast = make_forecasts_regression(start_time,parameters["prediction_horizon"],lin_reg_data,mlr_models,parameters["regression_poly"])   
     naive_forecast = make_forecasts_naive(start_time,parameters["prediction_horizon"],parameters["output_variable"],naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients,parameters["enhanced_naive"])
-
+    
+ 
     forecasted_values = []
 
     CNN_forecast = CNN_forecasts[test_start] #Had to remove this outside the if-else-structure, as the LSTM and GRU also access it
@@ -209,7 +210,7 @@ def run_complete_test(model_used, start_time, end_time = "none"):
     SMAPE_str = f"SMAPE; mean: {np.mean(SMAPE_list)}, median: {np.median(SMAPE_list)}, std: {np.std(SMAPE_list)}, min: {np.min(SMAPE_list)}, max: {np.max(SMAPE_list)}"
     RMSE_str = f"RMSE; mean: {np.mean(RMSE_list)}, median: {np.median(RMSE_list)}, std: {np.std(RMSE_list)}, min: {np.min(RMSE_list)}, max: {np.max(RMSE_list)}"
     MAPE_str = f"MAPE; mean: {np.mean(MAPE_list)}, median: {np.median(MAPE_list)}, std: {np.std(MAPE_list)}, min: {np.min(MAPE_list)}, max: {np.max(MAPE_list)}"
-    print(f"MEAN ERROR METRICS HERE; MAE : {str(round(np.mean(MAE_list), 2))}, SMAPE : {str(round(np.mean(SMAPE_list), 2))}, RMSE : {str(round(np.mean(RMSE_list), 2))}, MAPE : {str(round(np.mean(MAPE_list), 2))} ")
+    print(f"MEAN ERROR METRICS HERE; MAE : {str(round(np.mean(MAE_list), 3))}, SMAPE : {str(round(np.mean(SMAPE_list), 3))}, RMSE : {str(round(np.mean(RMSE_list), 3))}, MAPE : {str(round(np.mean(MAPE_list), 3))} ")
 
     parameters["MAE"] = MAE_str
     parameters["SMAPE"] = SMAPE_str
@@ -224,8 +225,11 @@ def save_model(
     person = str(os.getlogin())
     if person == "root":
         person = str(os.getenv("USER"))
+
+
     BASE_PATH = f"models/{person}/{parameters['model_used']}{parameters['extra_path']}_{parameters['output_variable']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
-    model.save_model(BASE_PATH)
+    os.mkdir(BASE_PATH)
+
     parameters.pop("metrics")
     parameters.pop("verbose")
 

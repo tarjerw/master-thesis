@@ -19,7 +19,7 @@ output_variable = (
 )
 
 selected_colums = [ # columns used in TCN/ CNN models
-    "Oslo",
+     "Oslo",
     "Kr.sand",
     "Tr.heim",
     "Tromsø",
@@ -31,15 +31,21 @@ selected_colums = [ # columns used in TCN/ CNN models
     "DK1",
     "DK2",
     "FI",
-
+     
+    
     "Hour",
     "Weekday",
     "Holiday",
 
+    "System Price",
     "Oil",
     "Gas",
     "Coal",
-    "System Price",
+    #"APX", 
+    #"OMEL", 
+    #"EEX",
+
+    
     "Total Vol",
     "Total Hydro",
     "Wind Prod",
@@ -47,17 +53,8 @@ selected_colums = [ # columns used in TCN/ CNN models
     "Prec Norway 7"
 ] 
 
-selected_colums_regression = [ # columns used in regression models 
-    "System Price",
-    "Oslo",
-    "Kr.sand",
-    #"Tr.heim",
-    #"Tromsø",
-    #"Bergen",
-    #"Month",
-    #"Weekday",
-    "Holiday",
-] 
+
+
 
 # ONLY HERE CHANGES TO THE MODEL NEED TO BE DONE 
 parameters = {
@@ -72,8 +69,7 @@ parameters = {
 
     #Base models (regression and naive) params:
     "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
-    "enhanced_naive": False, # enhanced naive vs. naive 
-    "selected_colums_regression": selected_colums_regression,
+    "enhanced_naive": True, # enhanced naive vs. naive 
 
 
     # params for CNN:
@@ -82,18 +78,20 @@ parameters = {
     "training_length": 14, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "naive", # base models used: "naive", "regression"
-    "epochs": 1,
+    "epochs": 15,
     "batch_size": 128,  # batch size
     "validation_split": 0.05,
     "learning_rate": 0.002,  # Learning rate the neural net
-    "hidden_layers": [256, 256, 256],  # Hidden layers for CNN
+    "hidden_layers": [128, 128, 128],  # Hidden layers for CNN
     "activation_functions": [
+        "relu",
+        "relu",
         "relu",
         "relu",
         "relu"
     ],  # activation functions for hidden layers, (can't be shorter than "hidden_layers")
     # linear, sigmoid, tanh, or relu, need to be at least same lenght as hidden layers.
-    "last_layer_activation": "linear",
+    "last_layer_activation": "sigmoid",
 
     #These are also used for LSTM-parameters
     "optimizer": "SGD",  # Adam, SGD, Adagrad, RMSprop
@@ -117,12 +115,12 @@ parameters = {
         4,
         8,
         16,
-        32,
+        32
     ),  # It controls how deep your TCN layer is. Usually, consider a list with multiple of two
     "TCN_padding": "causal",  # causal prevents information leakage (keep as is)
     "TCN_dropout_rate": 0.0,  # can be used to reduce overfitting (0 or lower than 0.05)
     "TCN_activiation": "relu",  # leave to default (relu)
-    "TCN_factor": 0.3,  # factor multiplied with TCN effect on price
+    "TCN_factor": 5.0,  # factor multiplied with TCN effect on price
 
    
 
@@ -166,7 +164,7 @@ parameters = {
     #visuals
     "plt_style": "ggplot",
     
-    "extra_path": ""
+    "extra_path": "EN"
 }
 
 """

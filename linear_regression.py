@@ -13,7 +13,7 @@ from parameters import parameters
 
 import statsmodels.stats.api as sms
 
-selected_colums_regression = parameters["selected_colums_regression"]
+selected_colums_regression = parameters["selected_colums"]
 
 output_variable = parameters["output_variable"]
 
@@ -114,8 +114,8 @@ def make_mlr(days, training_data_regression, output_variable, poly):
     return mlr
 
 mlr_models = []
-for i in range(1,31): # develop mlr models for different day horizions (1-31)
-    mlr_models.append(make_mlr(i,training_data_regression,output_variable,2))
+for i in range(1,parameters["prediction_horizon"]): # develop mlr models for different day horizions (1-31)
+    mlr_models.append(make_mlr(i,training_data_regression,output_variable,parameters["regression_poly"]))
     #print("Intercept: ", mlr_models[0].intercept_)
     #print("Coefficients:")
     #print(list(zip(training_data_regression, mlr_models[0].coef_)))
@@ -128,7 +128,6 @@ def make_forecasts_regression(start_date, number_of_days, lin_reg_data,mlr_model
     
     polynomial_features= PolynomialFeatures(degree=poly)
     forecast_basis_day = polynomial_features.fit_transform(forecast_basis_day)
-    
     predictions = []
     for i in range(number_of_days):
         predictions.extend(mlr_models[i].predict(forecast_basis_day))
