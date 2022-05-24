@@ -1,0 +1,160 @@
+{
+    "test_split": "2020-01-01-0",
+    "prediction_horizon": 7,
+    "output_variable": "Troms\u00f8",
+    "model_used": "LSTM",
+    "standardize_data": true,
+    "min_max_normalize_data": false,
+    "regression_poly": 1,
+    "enhanced_naive": false,
+    "selected_colums_regression": [
+        "System Price",
+        "Oslo",
+        "Kr.sand",
+        "Holiday",
+        "Troms\u00f8"
+    ],
+    "starting_cnn": "",
+    "training_length": 21,
+    "selected_colums": [
+        "Oslo",
+        "Kr.sand",
+        "Tr.heim",
+        "Troms\u00f8",
+        "Bergen",
+        "SE1",
+        "SE2",
+        "SE3",
+        "SE4",
+        "DK1",
+        "DK2",
+        "FI",
+        "Holiday",
+        "Oil",
+        "Gas",
+        "Coal",
+        "System Price",
+        "Total Vol",
+        "Total Hydro",
+        "Wind Prod",
+        "T Nor",
+        "Prec Norway 7",
+        "Weekday",
+        "Hour"
+    ],
+    "base_model": "",
+    "epochs": 30,
+    "batch_size": 128,
+    "validation_split": 0.05,
+    "learning_rate": 0.002,
+    "hidden_layers": [
+        256,
+        256,
+        256
+    ],
+    "activation_functions": [
+        "relu",
+        "relu",
+        "relu"
+    ],
+    "last_layer_activation": "linear",
+    "optimizer": "SGD",
+    "loss": "mean_absolute_error",
+    "TCN_nb_filters": 32,
+    "TCN_kernel_size": 32,
+    "TCN_nb_stacks": 1,
+    "TCN_dilations": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+    ],
+    "TCN_padding": "causal",
+    "TCN_dropout_rate": 0.0,
+    "TCN_activiation": "relu",
+    "TCN_factor": 0.3,
+    "LSTM_output_units": [
+        64
+    ],
+    "LSTM_return_sequences_last": false,
+    "LSTM_activation": "tanh",
+    "LSTM_recurrent_activation": "sigmoid",
+    "LSTM_dropout": 0.0,
+    "LSTM_DNN_layers": [
+        256
+    ],
+    "LSTM_DNN_activation": "relu",
+    "GRU_output_units": [
+        128,
+        128
+    ],
+    "GRU_return_sequences_last": true,
+    "GRU_activation": "tanh",
+    "GRU_recurrent_activation": "sigmoid",
+    "GRU_dropout": 0.0,
+    "GRU_DNN_layers": [
+        256
+    ],
+    "GRU_DNN_activation": "relu",
+    "SARIMA_order": [
+        2,
+        0,
+        1
+    ],
+    "SARIMA_seasonal_order": [
+        1,
+        1,
+        1,
+        24
+    ],
+    "SARIMA_grid_search": false,
+    "SARIMA_p_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_d_params": [
+        0,
+        1
+    ],
+    "SARIMA_q_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_P_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_D_params": [
+        0,
+        1
+    ],
+    "SARIMA_Q_params": [
+        0,
+        1,
+        2,
+        3
+    ],
+    "SARIMA_m_params": [
+        4,
+        5,
+        6,
+        7
+    ],
+    "SARIMA_threshold": 5000,
+    "tenserflow_random_seed": 69,
+    "numpy_random_seed": 420,
+    "plt_style": "ggplot",
+    "extra_path": "",
+    "MAE": "MAE; mean: 7.632555686759475, median: 6.402013427947503, std: 4.571985937424736, min: 1.6885015231855989, max: 20.616656285090365",
+    "SMAPE": "SMAPE; mean: 189.2823066158929, median: 191.44249071315866, std: 6.725299323245901, min: 172.33752176355546, max: 197.36294382649285",
+    "RMSE": "RMSE; mean: 7.893147967892605, median: 6.642917291347749, std: 4.644215039356454, min: 1.7650541280942267, max: 20.66412540121452",
+    "MAPE": "MAPE; mean: 97.9530268844308, median: 98.42063182992382, std: 1.382429088171733, min: 94.28813616769392, max: 99.53505264683716"
+}

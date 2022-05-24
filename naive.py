@@ -43,19 +43,26 @@ with open('data_erling/coefficients/weekday_coefficients.json') as json_file:
 with open('data_erling/coefficients/holiday_coefficients.json') as json_file:
     holiday_coefficients = json.load(json_file)
 
-def make_forecasts_naive(start_date, number_of_days,area,naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients, enhanced_naive = True):
+def make_forecasts_naive(start_date, number_of_days,area,naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients, enhanced_naive = True, seven_day_lag = False):
     def get_dict_key(area,number): return "('" + str(area) + "', " + str(int(number)) + ")" # used to produce dict key for json
 
     forecast_start = date_hour_list.index(start_date) - 24
     forecast_basis_day = naive_hourly_data[forecast_start:forecast_start+24] # day used as basis for forecast
+    forecast_basis_week = naive_hourly_data[forecast_start - 24*6:forecast_start+24]
     
     forecast_period = naive_hourly_data[forecast_start + 24:forecast_start+24 + 24*number_of_days]
     predictions = [] 
 
     if enhanced_naive == False: 
-        for _ in range(number_of_days):
-            for h in range(24):
-                predictions.append(forecast_basis_day.iloc[h][area])
+        if seven_day_lag:
+            if number_of_days != 7:
+                return "fuck you, number of days not equal to 7"
+            for i in range(7*24):
+                predictions.append(forecast_basis_week.iloc[i][area])
+        else:
+            for _ in range(number_of_days):
+                for h in range(24):
+                    predictions.append(forecast_basis_day.iloc[h][area])
         return predictions
 
     basis_value = sum(forecast_basis_day[area])/24 

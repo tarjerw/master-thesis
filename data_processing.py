@@ -193,9 +193,13 @@ def asinh_transform_dataset(training_data, test_data):
 
 # split into x (input vars) and y (target system price) data
 test_data_y = test_data[training_length * 24 :]
+test_data_y_all = test_data_y.copy()
 test_data_y = test_data_y[output_variable] # will get 356 different training cases
 training_data_y = training_data[training_length * 24:]
+
+training_data_y_all = training_data_y.copy()
 training_data_y = training_data_y[output_variable] # will get 2181 different training cases
+
 
 # Do standardization
 if standardize_data:

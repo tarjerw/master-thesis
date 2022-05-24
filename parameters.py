@@ -1,17 +1,17 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "Naive" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU", "Naive"
+model_used = "LSTM" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU", "Naive"
 
 output_variable = ( 
-    "Oslo"
+    #"Oslo"
     #"Kr.sand"
     #"Tr.heim"
     #"Tromsø"
     #"Bergen"
     #"SE1"
     #"SE2"
-    #"SE3"
+    "SE3"
     #"SE4"
     #"DK1"
     #"DK2"
@@ -64,20 +64,20 @@ parameters = {
     "prediction_horizon": 7, # days forward to forecast, will get 24x forecasts
     "output_variable": output_variable,
     "model_used":model_used,
-    "standardize_data": True, # method of preprocessing 
+    "standardize_data": False, # method of preprocessing 
     "min_max_normalize_data": False, # method of preprocessing 
 
     #Base models (regression and naive) params:
     "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
     "enhanced_naive": True, # enhanced naive vs. naive 
-
+    "seven_day_lag":False, # if to use a 7 day lag, instead of 1 for pure naive
 
     # params for CNN:
     # Path for continuing training (e.g "/Users/tarje/Desktop/Fordypningoppgvae/git/models/6/11.01.2021/13.39.29, "" for no pre-load)
     "starting_cnn": "",
     "training_length": 14, # number of days in input variable
     "selected_colums": selected_colums,
-    "base_model": "naive", # base models used: "naive", "regression"
+    "base_model": "", # base models used: "naive", "regression"
     "epochs": 15,
     "batch_size": 128,  # batch size
     "validation_split": 0.05,
@@ -120,7 +120,7 @@ parameters = {
     "TCN_padding": "causal",  # causal prevents information leakage (keep as is)
     "TCN_dropout_rate": 0.0,  # can be used to reduce overfitting (0 or lower than 0.05)
     "TCN_activiation": "relu",  # leave to default (relu)
-    "TCN_factor": 5.0,  # factor multiplied with TCN effect on price
+    "TCN_factor": 1.0,  # factor multiplied with TCN effect on price
 
    
 
@@ -145,8 +145,8 @@ parameters = {
 
     #SARIMA-parameters
     #Currently just foresats a single time series, can try to adapt to mutiple, but don't see the neccessity
-    "SARIMA_order" : (2, 0, 1),
-    "SARIMA_seasonal_order" : (1, 1, 1, 24),
+    "SARIMA_order" : (2, 1, 3),
+    "SARIMA_seasonal_order" : (1, 0, 1, 24),
     "SARIMA_grid_search" : False,
     "SARIMA_p_params" : [x for x in range(0, 4)],
     "SARIMA_d_params" : [x for x in range(0, 2)],
@@ -164,7 +164,7 @@ parameters = {
     #visuals
     "plt_style": "ggplot",
     
-    "extra_path": "EN"
+    "extra_path": ""
 }
 
 """

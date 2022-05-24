@@ -63,7 +63,13 @@ from data_processing import (
     training_x,
     training_y,
     training_data_y, #Needed for SARIMA
-    test_data
+    test_data,
+
+
+    training_data_y_all,
+    test_data_y_all,
+    test_data_x
+
 )
 
 from tqdm import trange
@@ -117,6 +123,7 @@ for i in range(1,parameters["prediction_horizon"] + 1): # develop mlr models for
     mlr_models.append(make_mlr(i,training_data_regression,parameters["output_variable"],parameters["regression_poly"]))
 
 if parameters["model_used"] == "SARIMA":
+    print(test_data)
     CNN_forecasts = model.predict(test_data[parameters["output_variable"]])
 else:
     CNN_forecasts = model.predict(test_x)
@@ -137,7 +144,7 @@ def run_test(model_used,start_time):
     
 
     regression_forecast = make_forecasts_regression(start_time,parameters["prediction_horizon"],lin_reg_data,mlr_models,parameters["regression_poly"])   
-    naive_forecast = make_forecasts_naive(start_time,parameters["prediction_horizon"],parameters["output_variable"],naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients,parameters["enhanced_naive"])
+    naive_forecast = make_forecasts_naive(start_time,parameters["prediction_horizon"],parameters["output_variable"],naive_hourly_data,hour_coefficients,month_coefficients,weekday_coefficients,holiday_coefficients,parameters["enhanced_naive"],parameters["seven_day_lag"])
     
  
     forecasted_values = []
@@ -229,9 +236,9 @@ def save_model(
 
     BASE_PATH = f"models/{person}/{parameters['model_used']}{parameters['extra_path']}_{parameters['output_variable']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
     os.mkdir(BASE_PATH)
-
-    parameters.pop("metrics")
-    parameters.pop("verbose")
+    
+    parameters["metrics"] = None 
+    parameters["verbose"] = None
 
     with open(f"{BASE_PATH}/parameters.json", "w") as file:
         json.dump(parameters, file, indent=4)
@@ -251,9 +258,48 @@ def save_model(
     with open(f"{BASE_PATH}/Date_list.json", "wb") as fp:  # Pickling
         pickle.dump(date_list, fp)
 
-    
+print(parameters["output_variable"])
 forecast_dict, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list = run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
 save_model(model,parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list)
+
+models_to_run_after = [
+    #"Kr.sand",
+    "Tr.heim",
+    "Tromsø",
+    "Bergen",
+    "SE1",
+    "SE2",
+    "SE3",
+    "SE4",
+    "DK1",
+    "DK2",
+    "FI"
+]
+models_to_run_after = []
+
+for element in models_to_run_after:
+    parameters["output_variable"] = element
+    training_data_y_no_numpy = training_data_y_all[parameters["output_variable"]]
+    training_data_y = training_data_y_no_numpy.to_numpy()
+    new_y = test_data_y_all[parameters["output_variable"]]
+    new_y = new_y.to_numpy()
+    ind = 0
+    new_test_y = []
+    while ind + ( parameters["training_length"] * 24 ) <= len(test_data_x):
+        new_test_y.append(new_y[ind:ind+parameters["prediction_horizon"]*24]) 
+        ind += 24 
+    test_y = new_test_y
+
+    model = SARIMA_model().initialize(parameters)
+    model = model.fit(training_data_y)
+    CNN_forecasts = model.predict(test_data[parameters["output_variable"]])
+    
+    print(element)
+    forecast_dict, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list = run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
+    save_model(model,parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list)
+    
+    
+  
 
 
 def visualize_date(model_used,date):
@@ -268,8 +314,3 @@ def visualize_date(model_used,date):
 #visualize_date(parameters["model_used"],"2020-01-18-0")
 
 
-#HOW TO LOAD FROM JSON
-#open_file = open("models/Oslo_LSTM_05.21.2022.13.59.05/RMSE_list.json", "rb")
-#loaded_list = pickle.load(open_file)
-#open_file.close()
-#print(loaded_list)

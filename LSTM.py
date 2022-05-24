@@ -1,6 +1,7 @@
 #Thinking about mmaking an LSTM model for 
 from keras.models import Sequential
 from keras.layers import Dense, LSTM, Flatten
+import tensorflow.keras.optimizers as optimizers
 
 
 class LSTM_model:
@@ -29,9 +30,15 @@ class LSTM_model:
         
         self.model.add(Dense(parameters["prediction_horizon"]*24))
 
-        self.model.compile(loss=parameters["loss"],
-        metrics=parameters["metrics"],
-        optimizer=parameters["optimizer"])
+        selected_optimizer = getattr(optimizers, parameters["optimizer"])(
+            learning_rate=parameters["learning_rate"]
+        )
+
+        self.model.compile(
+            loss=parameters["loss"],
+            optimizer=selected_optimizer,
+            metrics=parameters["metrics"],
+        )
 
         #self.model.summary()
 
@@ -54,6 +61,7 @@ class LSTM_model:
             shuffle=shuffle,
             verbose=verbose,
         )
+        print(self.model.summary())
 
         # loss = ret.history.get("loss", [None])
         # mae = ret.history.get("MAE", [None])
