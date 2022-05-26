@@ -1,57 +1,49 @@
 from os import lstat
 import tensorflow as tf
 
-model_used = "LSTM" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU", "Naive"
+model_used = "SARIMA" # "Regression", "TCN", "DNN", "LSTM", "SARIMA", "GRU", "Naive"
 
 output_variable = ( 
-    #"Oslo"
+    "Oslo"
     #"Kr.sand"
     #"Tr.heim"
     #"Tromsø"
     #"Bergen"
     #"SE1"
     #"SE2"
-    "SE3"
+    #"SE3"
     #"SE4"
     #"DK1"
     #"DK2"
     #"FI"
 )
 
-selected_colums = [ # columns used in TCN/ CNN models
-     "Oslo",
-    "Kr.sand",
-    "Tr.heim",
-    "Tromsø",
-    "Bergen",
-    "SE1",
-    "SE2",
-    "SE3",
-    "SE4",
-    "DK1",
-    "DK2",
-    "FI",
-     
-    
-    "Hour",
-    "Weekday",
-    "Holiday",
-
-    "System Price",
-    "Oil",
-    "Gas",
-    "Coal",
-    #"APX", 
-    #"OMEL", 
-    #"EEX",
-
-    
-    "Total Vol",
-    "Total Hydro",
-    "Wind Prod",
-    "T Nor",
-    "Prec Norway 7"
-] 
+selected_colums = [
+        "Oslo",
+        "Kr.sand",
+        "Tr.heim",
+        "Troms\u00f8",
+        "Bergen",
+        "SE1",
+        "SE2",
+        "SE3",
+        "SE4",
+        "DK1",
+        "DK2",
+        "FI",
+        "Holiday",
+        "System Price",
+        "Oil",
+        "Gas",
+        "Coal",
+        "Total Vol",
+        "Total Hydro",
+        "Wind Prod",
+        "T Nor",
+        "Prec Norway 7",
+        "Weekday",
+        "Hour"
+    ]
 
 
 
@@ -68,17 +60,17 @@ parameters = {
     "min_max_normalize_data": False, # method of preprocessing 
 
     #Base models (regression and naive) params:
-    "regression_poly": 1, # what factor of polynomials in regression (1 = linear)
-    "enhanced_naive": True, # enhanced naive vs. naive 
+    "regression_poly": 2, # what factor of polynomials in regression (1 = linear)
+    "enhanced_naive": False, # enhanced naive vs. naive 
     "seven_day_lag":False, # if to use a 7 day lag, instead of 1 for pure naive
 
     # params for CNN:
     # Path for continuing training (e.g "/Users/tarje/Desktop/Fordypningoppgvae/git/models/6/11.01.2021/13.39.29, "" for no pre-load)
     "starting_cnn": "",
-    "training_length": 14, # number of days in input variable
+    "training_length": 21, # number of days in input variable
     "selected_colums": selected_colums,
     "base_model": "", # base models used: "naive", "regression"
-    "epochs": 15,
+    "epochs": 1,
     "batch_size": 128,  # batch size
     "validation_split": 0.05,
     "learning_rate": 0.002,  # Learning rate the neural net
@@ -164,7 +156,7 @@ parameters = {
     #visuals
     "plt_style": "ggplot",
     
-    "extra_path": ""
+    "extra_path": "-extra"
 }
 
 """

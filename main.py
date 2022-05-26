@@ -202,7 +202,7 @@ def run_complete_test(model_used, start_time, end_time = "none"):
         MAPE_list.append(error_metrics["MAPE"])
         date_list.append(date)
         cummulative_error_list.extend(error_list)
-         
+    
     hour_error_list = [[]]
     for ind,element in enumerate(cummulative_error_list):
         i = ind % (24*parameters["prediction_horizon"])
@@ -227,14 +227,15 @@ def run_complete_test(model_used, start_time, end_time = "none"):
 
 
 def save_model(
-    model,parameters, MAE_dict, RMSE_dict, MAPE_dict, SMAPE_dict, date_list
+    parameters, MAE_dict, RMSE_dict, MAPE_dict, SMAPE_dict, date_list, forecast_dict
 ):  # used to save the anet model
     person = str(os.getlogin())
     if person == "root":
         person = str(os.getenv("USER"))
 
 
-    BASE_PATH = f"models/{person}/{parameters['model_used']}{parameters['extra_path']}_{parameters['output_variable']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
+    #BASE_PATH = f"models/{person}/{parameters['model_used']}{parameters['extra_path']}_{parameters['output_variable']}_{datetime.datetime.now().strftime('%m.%d.%Y.%H.%M.%S')}"
+    BASE_PATH = f"models/{person}/{parameters['model_used']}{parameters['extra_path']}_{parameters['output_variable']}"
     os.mkdir(BASE_PATH)
     
     parameters["metrics"] = None 
@@ -242,6 +243,9 @@ def save_model(
 
     with open(f"{BASE_PATH}/parameters.json", "w") as file:
         json.dump(parameters, file, indent=4)
+    
+    with open(f"{BASE_PATH}/forecast_dict.json", "wb") as fp:
+        pickle.dump(forecast_dict, fp)
 
     with open(f"{BASE_PATH}/MAE_list.json", "wb") as fp:  # Pickling
         pickle.dump(MAE_dict, fp)
@@ -258,24 +262,25 @@ def save_model(
     with open(f"{BASE_PATH}/Date_list.json", "wb") as fp:  # Pickling
         pickle.dump(date_list, fp)
 
+    
+
 print(parameters["output_variable"])
 forecast_dict, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list = run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
-save_model(model,parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list)
+save_model(parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list, forecast_dict)
 
 models_to_run_after = [
-    #"Kr.sand",
+    "Kr.sand",
     "Tr.heim",
     "Tromsø",
     "Bergen",
     "SE1",
     "SE2",
-    "SE3",
+    #"SE3",
     "SE4",
     "DK1",
     "DK2",
-    "FI"
+     "FI"
 ]
-models_to_run_after = []
 
 for element in models_to_run_after:
     parameters["output_variable"] = element
@@ -296,7 +301,7 @@ for element in models_to_run_after:
     
     print(element)
     forecast_dict, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list = run_complete_test(parameters["model_used"],get_new_date(parameters["test_split"],parameters["training_length"]))
-    save_model(model,parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list)
+    save_model(parameters, MAE_list, SMAPE_list, RMSE_list, MAPE_list, date_list, forecast_dict)
     
     
   
